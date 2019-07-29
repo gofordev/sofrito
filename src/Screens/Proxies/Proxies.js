@@ -62,7 +62,7 @@ export default class Proxies extends Component {
                                                         <td className="text-success">219 ms</td>
                                                         <td>
                                                             <a href="#" className="btn-action"><i
-                                                                    className="fa fa-play-circle-o"></i></a>
+                                                                className="fa fa-play-circle-o"></i></a>
                                                             <a href="#" className="btn-action"><i className="fa fa-trash-o"></i></a>
                                                         </td>
                                                     </tr>
@@ -75,7 +75,7 @@ export default class Proxies extends Component {
                                                         <td className="text-danger">Bad</td>
                                                         <td>
                                                             <a href="#" className="btn-action"><i
-                                                                    className="fa fa-play-circle-o"></i></a>
+                                                                className="fa fa-play-circle-o"></i></a>
                                                             <a href="#" className="btn-action"><i className="fa fa-trash-o"></i></a>
                                                         </td>
                                                     </tr>
@@ -85,11 +85,11 @@ export default class Proxies extends Component {
                                     </div>
                                     <div className="card-footer">
                                         <a href="#exampleModalCenter" className="btn btn-add" data-toggle="modal"
-                                            data-target="#exampleModalCenter"><i className="fa fa-play-circle-o"></i>
+                                            data-target="#exampleModalCenter"><i className="fa fa-plus-circle"></i>
                                             Add Proxies
                                         </a>
-                                        <a href="#" className="btn btn-test"><i className="fa fa-play"></i> Test</a>
                                         <a href="#" className="btn btn-all"><i className="fa fa-trash-o"></i> Clear All</a>
+                                        <a href="#" className="btn btn-test"><i className="fa fa-play"></i> Test</a>
                                     </div>
                                 </div>
                             </div>
@@ -168,11 +168,11 @@ export default class Proxies extends Component {
                                     </div>
                                     <div className="card-footer">
                                         <a href="#exampleModalCenter" className="btn btn-add" data-toggle="modal"
-                                            data-target="#exampleModalCenter"><i className="fa fa-play-circle-o"></i>
+                                            data-target="#exampleModalCenter"><i className="fa fa-plus-circle"></i>
                                             Add Proxies
                                         </a>
-                                        <a href="#" className="btn btn-test"><i className="fa fa-play"></i> Test</a>
                                         <a href="#" className="btn btn-all"><i className="fa fa-trash-o"></i> Clear All</a>
+                                        <a href="#" className="btn btn-test"><i className="fa fa-play"></i> Test</a>
                                     </div>
                                 </div>
                             </div>

@@ -9,7 +9,9 @@ export default class Header extends Component {
                 <div className="container-fluid">
                     <div className="row">
                         <div className="col-md-3">
-                            <img src="Assets/images/logo.png" alt="" />
+                            <Link to="/">
+                                <img src="Assets/images/logo.png" alt="" />
+                            </Link>
                         </div>
         
                         <div className="col-md-6">
@@ -43,8 +45,8 @@ export default class Header extends Component {
                                 <span className="welcom">
                                     Welcome To Version 1.00
                                 </span>
-                                <i className="fa fa-minus-square-o"></i>
-                                <i className="fa fa-times"></i>
+                                <i className="fa fa-minus-square-o" id="minimum"></i>
+                                <i className="fa fa-times" id="close"></i>
                             </div>
                         </div>
                     </div>

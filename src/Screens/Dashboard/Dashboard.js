@@ -30,13 +30,13 @@ export default class Dashboard extends Component {
 
     }
 
-    handleTaskCountChange(event) {
+    handleTaskCountChange = (event) => {
         this.setState({
             taskCount: event.target.value,
         });
     }
 
-    handleTaskDateChange(event) {
+    handleTaskDateChange = (event) => {
         this.setState({
             dateTime: event.target.value,
         });
@@ -391,7 +391,7 @@ export default class Dashboard extends Component {
                                             <div className="form-group">
                                                 <label>Schedule</label>
                                                 <div className="input-group date has-search2">
-                                                    <input type='text' className="form-control form-control-sm" placeholder="Select Time" id='datetimepicker1' onChange={this.handleTaskDateChange}/>
+                                                    <input type='text' className="form-control form-control-sm" placeholder="Select Time" id='datetimepicker1' onChange={e=>this.handleTaskDateChange}/>
                                                     <span className="fa fa-calendar form-control-feedback2"></span>
                                                 </div>
                                             </div>
@@ -419,7 +419,7 @@ export default class Dashboard extends Component {
                                             <div className="bottom-btns">
                                                 <div className="btn-number">
                                                     <div className="value-button" id="decrease" onClick={()=>this.decreaseValue()}><i className="fa fa-minus"></i></div>
-                                                    <input type="number" id="number" value={this.state.taskCount} onChange={this.handleTaskCountChange}/>
+                                                    <input type="number" id="number" value={this.state.taskCount} onChange={e=>this.handleTaskCountChange}/>
                                                     <div className="value-button" id="increase" onClick={()=>this.increaseValue()}><i className="fa fa-plus"></i></div>
                                                 </div>
                                                 <button type="submit" className="btn btn-create" onClick={()=>this.createTask()}>Create</button>
