@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import isElectron from 'is-electron';
 
 export default class Dashboard extends Component {
     constructor(props) {
@@ -6,6 +7,56 @@ export default class Dashboard extends Component {
         this.state = {
             taskCount: 1, 
             dateTime: '',
+            product: '',
+            delay: 0,
+            color: '',
+            store: 'null',
+            size: 'null',
+            profile: 'null',
+            profiles: [],
+            tasks: null,
+            indexArr: [],
+            isEdit: false,
+            editIndex: 0
+        }
+    }
+
+    componentDidMount() {
+        if (isElectron())
+        {
+            window.storage.get('tasks', function(error, data) {
+                if (error) throw error;
+                if(JSON.parse(data.tasks) != null){
+                    localStorage.setItem("tasks", data.tasks)
+                }
+            });
+            window.storage.get('profiles', function(error, data) {
+                if (error) throw error;
+                if(JSON.parse(data.profiles) != null){
+                    localStorage.setItem("profiles", data.profiles)
+                }
+            });
+        }
+          
+        window.$(function () {
+            window.$('#datetimepicker1').datetimepicker();
+        });
+        var data = []
+        if(localStorage.getItem("profiles")){
+            data = JSON.parse(localStorage.getItem("profiles"))
+            if(data){
+                this.setState({
+                    profiles: data
+                })
+            }
+        }
+        if(localStorage.getItem("tasks")){
+            data = JSON.parse(localStorage.getItem("tasks"))
+            if(data){
+                this.setState({
+                    tasks: data
+                })
+            }
         }
     }
 
@@ -40,13 +91,207 @@ export default class Dashboard extends Component {
         this.setState({
             dateTime: event.target.value,
         });
-        console.log("time", this.state.dateTime);
+    }
+
+    handleChangeProduct = (event) => {
+        this.setState({
+            product: event.target.value
+        })
+    }
+
+    handleChangeProfile = (event) => {
+        this.setState({
+            profile: event.target.value
+        })
+    }
+
+    handleChangeStore = (event) => {
+        this.setState({
+            store: event.target.value
+        })
+    }
+
+    handleChangeSize = (event) => {
+        this.setState({
+            size: event.target.value
+        })
+    }
+
+    handleChangeDelay = (event) => {
+        this.setState({
+            delay: (event.target.validity.valid) ? event.target.value : this.state.delay
+        })
+    }
+
+    handleChangeColor = (event) => {
+        this.setState({
+            color: event.target.value
+        })
+    }
+
+    handleChangeIsChecked = (index) => {
+        console.log(index)
     }
 
     createTask() {
-        console.log("create task");
+        let obj = {};
+        obj["store"] = this.state.store;
+        obj["size"] = this.state.size;
+        obj["product"] = this.state.product;
+        obj["profile"] = this.state.profile;
+        obj["schedule_time"] = document.getElementById("datetimepicker1").value;
+        obj["delay"] = this.state.delay;
+        obj["color"] = this.state.color;
+        obj["status"] = "Idle"
+        const taskCount = parseInt(this.state.taskCount);
+
+        if(!this.state.product){
+            alert("Please fill in all the fields.")
+            return
+        }
+        else {
+            if(this.state.isEdit)
+            {
+                console.log("update task", obj);
+                this.editTask("tasks", obj);
+            }
+            else
+            {
+                for (var i=0;i<taskCount;i++)
+                {
+                    this.addTask("tasks", obj);
+                }
+            }
+            console.log("create task", obj);
+            var data = []
+            if(localStorage.getItem("tasks")){
+                data = JSON.parse(localStorage.getItem("tasks"))
+                if(data){
+                    this.setState({
+                        tasks: data
+                    })
+                }
+            }
+        }
+    }
+
+    addTask = (t, obj) => {
+        let data = []
+        if(localStorage.getItem(t)){
+            data = JSON.parse(localStorage.getItem(t))
+            if(data){
+                obj["id"] = data.length+1
+                data.push(obj)
+                localStorage.setItem(t, JSON.stringify(data))
+            }
+        }else{
+            obj["id"] = 1
+            data.push(obj)
+            localStorage.setItem(t, JSON.stringify(data))
+        }
+        return data
+    }
+
+    editTask = (t, obj) => {
+        let data = []
+        var index = this.state.editIndex;
+        if(localStorage.getItem(t)){
+            data = JSON.parse(localStorage.getItem(t))
+            if(data){
+                data[index] = obj;
+                localStorage.setItem(t, JSON.stringify(data))
+            }
+        }
+        return data 
+    }
+
+    deleteTask = (index) => {
+        let data = []
+        if(localStorage.getItem("tasks")){
+            data = JSON.parse(localStorage.getItem("tasks"))
+            if(data){
+                data.splice(index, 1)
+                localStorage.setItem("tasks", JSON.stringify(data))
+                this.setState({
+                    tasks: data
+                })
+            }
+        }
+    }
+
+    deleteAllTasks = () => {
+        localStorage.setItem("tasks", JSON.stringify([]))
+        this.setState({
+            tasks: null
+        })
     }
     
+    runTask = (index) => {
+        let data = []
+        if(localStorage.getItem("tasks")){
+            data = JSON.parse(localStorage.getItem("tasks"))
+            if(data){
+                if(data[index].status == "Stopped" || data[index].status == "Idle"){
+                    data[index].status = "Running";
+                }
+                else {
+                    data[index].status = "Stopped";
+                }
+                localStorage.setItem("tasks", JSON.stringify(data))
+                this.setState({
+                    tasks: data
+                })
+            }
+        }
+    }
+
+    startAllTask = () => {
+        let data = []
+        if(localStorage.getItem("tasks")){
+            data = JSON.parse(localStorage.getItem("tasks"))
+            if(data){
+                for(var i=0; i<data.length; i++)
+                {
+                    data[i].status = "Running";
+                }
+                localStorage.setItem("tasks", JSON.stringify(data))
+                this.setState({
+                    tasks: data
+                })
+            }
+        }
+    }
+
+    stopAllTask = () => {
+        let data = []
+        if(localStorage.getItem("tasks")){
+            data = JSON.parse(localStorage.getItem("tasks"))
+            if(data){
+                for(var i=0; i<data.length; i++)
+                {
+                    data[i].status = "Stopped";
+                }
+                localStorage.setItem("tasks", JSON.stringify(data))
+                this.setState({
+                    tasks: data
+                })
+            }
+        }
+    }
+
+    addTaskHandle = () => {
+        this.setState({
+            isEdit: false
+        })
+    }
+
+    editTaskHandle = (index) => {
+        this.setState({
+            editIndex: index,
+            isEdit: true
+        })
+    }
+
     render() {
         return(
             <div className="dashboard">
@@ -74,7 +319,7 @@ export default class Dashboard extends Component {
                                             <div className="task-btns">
                                                 <div className="row">
                                                     <div className="col-12">
-                                                        <a className="btn " href="#exampleModalCenter1"  data-toggle="modal" data-target="#exampleModalCenter1">Add Task</a>
+                                                        <a className="btn " href="#exampleModalCenter1"  data-toggle="modal" data-target="#exampleModalCenter1" onClick={()=>this.addTaskHandle()}>Add Task</a>
                                                         <a href="#" className="btn">Edit Task</a>
                                                         <a href="#" className="btn ">Import</a>
                                                         <a href="#" className="btn ">Export</a>
@@ -242,86 +487,46 @@ export default class Dashboard extends Component {
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <tr>
-                                                            <td>
-                                                                <div className="custom-control custom-checkbox">
-                                                                    <input type="checkbox" className="custom-control-input" id="customCheck2" />
-                                                                    <label className="custom-control-label" htmlFor="customCheck2"></label>
-                                                                </div>
-                                                            </td>
-                                                            <td style={{width: "15%", textAlign: "left"}}>
-                                                                <img src="Assets/images/supreme-logo.png" alt="" />
-                                                                <div className="company-name">Supreme <br/>
-                                                                    <span className="location">US Region</span>
-                                                                </div>
-                                                            </td>
-                                                            <td>+Box,+Logo</td>
-                                                            <td>S, M, L</td>
-                                                            <td>Debit</td>
-                                                            <td>Idle</td>
-                                                            <td>
-                                                                <a href="#" className="btn-action"><i className="fa fa-play-circle-o"></i></a>
-                                                                <a href="#" className="btn-action"><i className="fa fa-pencil"></i></a>
-                                                                <a href="#" className="btn-action"><i className="fa fa-refresh"></i></a>
-                                                                <a href="#" className="btn-action"><i className="fa fa-trash-o"></i></a>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>
-                                                                <div className="custom-control custom-checkbox">
-                                                                    <input type="checkbox" className="custom-control-input" id="customCheck3" />
-                                                                    <label className="custom-control-label" htmlFor="customCheck3"></label>
-                                                                </div>
-                                                            </td>
-                                                            <td style={{width: "15%", textAlign: "left"}}>
-                                                                <img src="Assets/images/shopify-logo.png" alt=""/>
-                                                                <div className="company-name">Shopify <br />
-                                                                    <span className="location">Kith</span>
-                                                                </div>
-                                                            </td>
-                                                            <td>THE 10: NIKE AIR PRESTO "OFF WHITE"</td>
-                                                            <td>Random</td>
-                                                            <td>Debit #2</td>
-                                                            <td className="text-success">Check Email</td>
-                                                            <td>
-                                                                <a href="#" className="btn-action"><i className="fa fa-play-circle-o"></i></a>
-                                                                <a href="#" className="btn-action"><i className="fa fa-pencil"></i></a>
-                                                                <a href="#" className="btn-action"><i className="fa fa-refresh"></i></a>
-                                                                <a href="#" className="btn-action"><i className="fa fa-trash-o"></i></a>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>
-                                                                <div className="custom-control custom-checkbox">
-                                                                    <input type="checkbox" className="custom-control-input" id="customCheck4" />
-                                                                    <label className="custom-control-label" htmlFor="customCheck4"></label>
-                                                                </div>
-                                                            </td>
-                                                            <td style={{width: "15%", textAlign: "left"}}>
-                                                                <img src="Assets/images/footsites-logo.png" alt=""/>
-                                                                <div className="company-name">Footsites<br />
-                                                                    <span className="location">Footlocker US</span>
-                                                                </div>
-                                                            </td>
-                                                            <td>+Box,+Logo</td>
-                                                            <td>Large</td>
-                                                            <td>Credit</td>
-                                                            <td className="text-warning">Processing...</td>
-                                                            <td>
-                                                                <a href="#" className="btn-action"><i className="fa fa-play-circle-o"></i></a>
-                                                                <a href="#" className="btn-action"><i className="fa fa-pencil"></i></a>
-                                                                <a href="#" className="btn-action"><i className="fa fa-refresh"></i></a>
-                                                                <a href="#" className="btn-action"><i className="fa fa-trash-o"></i></a>
-                                                            </td>
-                                                        </tr>
+                                                        {this.state.tasks ? this.state.tasks.map((task, index)=>{
+                                                            return (
+                                                                    <tr key={index}>
+                                                                        <td>
+                                                                            <div className="custom-control custom-checkbox">
+                                                                                <input type="checkbox" 
+                                                                                    className="custom-control-input" 
+                                                                                    id="customCheck2" 
+                                                                                    checked={this.state.indexArr.includes(index)}
+                                                                                    onChange={()=>this.handleChangeIsChecked(index)}/>
+                                                                                <label className="custom-control-label" htmlFor="customCheck2"></label>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td style={{width: "15%", textAlign: "left"}}>
+                                                                            <img src="Assets/images/supreme-logo.png" alt="" />
+                                                                            <div className="company-name">{task.store} <br/>
+                                                                                <span className="location">US Region</span>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td>{task.product}</td>
+                                                                        <td>{task.size}</td>
+                                                                        <td>{task.profile}</td>
+                                                                        <td>{task.status}</td>
+                                                                        <td>
+                                                                            <a href="#" className="btn-action" onClick={()=>this.runTask(index)}><i className="fa fa-play-circle-o"></i></a>
+                                                                            <a className="btn-action"  href="#exampleModalCenter1" data-toggle="modal" ><i className="fa fa-pencil" onClick={()=>this.editTaskHandle(index)}></i></a>
+                                                                            <a href="#" className="btn-action"><i className="fa fa-refresh"></i></a>
+                                                                            <a href="#" className="btn-action" onClick={()=>this.deleteTask(index)}><i className="fa fa-trash-o"></i></a>
+                                                                        </td>
+                                                                    </tr>
+                                                                )
+                                                        }) : <tr></tr>}
                                                     </tbody>
                                                 </table>
                                             </div>
                                         </div>
                                         <div className="card-footer">
-                                            <a href="#" className="btn btn-add"><i className="fa fa-play"></i> Start Task</a>
-                                            <a href="#" className="btn btn-all"><i className="fa fa-stop"></i> Stop Task</a>
-                                            <a href="#" className="btn btn-test"><i className="fa fa-trash-o"></i> Clear Task</a>
+                                            <a className="btn btn-add" onClick={()=>this.startAllTask()}><i className="fa fa-play"></i> Start Task</a>
+                                            <a className="btn btn-all" onClick={()=>this.stopAllTask()}><i className="fa fa-stop"></i> Stop Task</a>
+                                            <a className="btn btn-test" onClick={()=>this.deleteAllTasks()}><i className="fa fa-trash-o"></i> Clear Task</a>
                                         </div>
                                     </div>
                                 </div>
@@ -338,17 +543,19 @@ export default class Dashboard extends Component {
                                 <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
-                                <h5 className="modal-title" id="exampleModalCenterTitle">Create Task</h5>
+                                <h5 className="modal-title" id="exampleModalCenterTitle">{this.state.isEdit ? "Edit Task" : "Create Task"}</h5>
                                 <form>
                                     <div className="row">
                                         <div className="col-md-6">
                                             <div className="form-group">
                                                 <label>Store</label>
-                                                <select className="form-control form-control-sm">
-                                                    <option>Select Store</option>
-                                                    <option>Supreme US</option>
-                                                    <option>Supreme US</option>
-                                                    <option>Supreme US</option>
+                                                <select className="form-control form-control-sm"
+                                                    value={this.state.store}
+                                                    onChange={this.handleChangeStore}>
+                                                    <option value="null" disabled>Select Store</option>
+                                                    <option value="supreme">Supreme US</option>
+                                                    <option value="shopify">Shopify</option>
+                                                    <option value="yeezy">Yeezy Supply</option>
                                                 </select>
                                             </div>
 
@@ -356,11 +563,13 @@ export default class Dashboard extends Component {
                                         <div className="col-md-6">
                                             <div className="form-group">
                                                 <label>Size</label>
-                                                <select className="form-control form-control-sm">
-                                                    <option>Select Size</option>
-                                                    <option>small</option>
-                                                    <option>Large</option>
-                                                    <option>Extra Large</option>
+                                                <select className="form-control form-control-sm"
+                                                    value={this.state.size}
+                                                    onChange={this.handleChangeSize}>
+                                                    <option value="null">Select Size</option>
+                                                    <option value="small">Small</option>
+                                                    <option value="large">Large</option>
+                                                    <option value="extra-large">Extra Large</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -370,19 +579,26 @@ export default class Dashboard extends Component {
                                                 <label>Product</label>
                                                 <div className="form-group has-search">
                                                     <span className="fa fa-search form-control-feedback"></span>
-                                                    <input type="text" className="form-control form-control-sm" placeholder="Search" />
+                                                    <input type="text" 
+                                                        className="form-control form-control-sm" 
+                                                        placeholder="Search"
+                                                        value={this.state.product}
+                                                        onChange={this.handleChangeProduct} />
                                                 </div>
                                             </div>
                                         </div>
                                         <div className="col-md-6">
                                             <div className="form-group">
                                                 <label>Profile</label>
-                                                <select className="form-control form-control-sm">
-                                                    <option>Select Profile</option>
-                                                    <option>Supreme US</option>
-                                                    <option>Supreme US</option>
-                                                    <option>Supreme US</option>
-                                                    <option>Supreme US</option>
+                                                <select className="form-control form-control-sm"
+                                                    value={this.state.profile}
+                                                    onChange={this.handleChangeProfile}>
+                                                    <option value="null" disabled>Select Profile</option>
+                                                    {this.state.profiles ? this.state.profiles.map((profile, index)=>{
+                                                        return (
+                                                            <option value={profile.profileName} key={index}>{profile.profileName}</option>
+                                                        )
+                                                    }) : ''}
                                                 </select>
                                             </div>
 
@@ -391,7 +607,13 @@ export default class Dashboard extends Component {
                                             <div className="form-group">
                                                 <label>Schedule</label>
                                                 <div className="input-group date has-search2">
-                                                    <input type='text' className="form-control form-control-sm" placeholder="Select Time" id='datetimepicker1' onChange={e=>this.handleTaskDateChange}/>
+                                                    <input type='text' 
+                                                        className="form-control form-control-sm" 
+                                                        placeholder="Select Time" 
+                                                        id='datetimepicker1'
+                                                        // value={this.state.dateTime}
+                                                        // onChange={this.handleTaskDateChange}
+                                                    />
                                                     <span className="fa fa-calendar form-control-feedback2"></span>
                                                 </div>
                                             </div>
@@ -400,7 +622,12 @@ export default class Dashboard extends Component {
                                             <div className="form-group">
                                                 <label>Checkout Delay</label>
                                                 <div className="form-group date">
-                                                    <input type='text' className="form-control form-control-sm" placeholder="Enter Number" />
+                                                    <input type='text' 
+                                                        className="form-control form-control-sm" 
+                                                        placeholder="Enter Number" 
+                                                        pattern="[0-9]*"
+                                                        value={this.state.delay}
+                                                        onChange={this.handleChangeDelay}/>
 
                                                 </div>
                                             </div>
@@ -409,7 +636,11 @@ export default class Dashboard extends Component {
                                             <div className="form-group">
                                                 <label>Color</label>
                                                 <div className="form-group date">
-                                                    <input type='text' className="form-control form-control-sm" placeholder="Enter Color" />                                            
+                                                    <input type='text' 
+                                                        className="form-control form-control-sm" 
+                                                        placeholder="Enter Color" 
+                                                        value={this.state.color}
+                                                        onChange={this.handleChangeColor} />                                            
                                                 </div>
                                             </div>
                                         </div>
@@ -422,13 +653,17 @@ export default class Dashboard extends Component {
                                                     <input type="number" id="number" value={this.state.taskCount} onChange={e=>this.handleTaskCountChange}/>
                                                     <div className="value-button" id="increase" onClick={()=>this.increaseValue()}><i className="fa fa-plus"></i></div>
                                                 </div>
-                                                <button type="submit" className="btn btn-create" onClick={()=>this.createTask()}>Create</button>
+                                                <button type="button" 
+                                                    className="btn btn-create" 
+                                                    data-dismiss="modal" 
+                                                    aria-label="Close"
+                                                    onClick={()=>this.createTask()}
+                                                >{this.state.isEdit ? "Update" : "Create"}</button>
                                             </div>
                                         </div>
                                     </div>
                                 </form>
                             </div>
-
                         </div>
                     </div>
                 </div>
@@ -438,7 +673,7 @@ export default class Dashboard extends Component {
                         <div className="modal-content">
                             <div className="modal-header">
                                 <h5 className="modal-title" id="exampleModalCenterTitle">Captcha (1/10)</h5>
-                                <i style={{color: "#fff", right: "38px", top: "20px", float: "right", position: "absolute", fontSize: "14px"}} className="fa fa-minus-square-o"></i>
+                                <i style={{color: "#fff", right: "38px", top: "25px", float: "right", position: "absolute", fontSize: "14px"}} className="fa fa-minus-square-o"></i>
                                 <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>

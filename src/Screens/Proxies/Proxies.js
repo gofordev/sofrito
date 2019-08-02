@@ -1,9 +1,168 @@
 import React, { Component } from 'react';
+import isElectron from 'is-electron';
 
 export default class Proxies extends Component {
+
+    constructor(props) {
+        super(props);
+        this.state=({
+            proxies: '',
+            isMonitorProxies: true,
+            monitorProxies: null,
+            taskProxies: null
+        })
+    }
+
+    componentDidMount() {
+        if(isElectron()){
+            window.storage.get('monitor_proxies', function(error, data) {
+                if (error) throw error;
+                if(JSON.parse(data.monitor_proxies) != null){
+                    localStorage.setItem("monitor_proxies", data.monitor_proxies)
+                }
+            });
+    
+            window.storage.get('task_proxies', function(error, data) {
+                if (error) throw error;
+                if(JSON.parse(data.task_proxies) != null){
+                    localStorage.setItem("task_proxies", data.task_proxies)
+                }
+            });
+        }
+
+        let data = []
+        if(localStorage.getItem("monitor_proxies")){
+            data = JSON.parse(localStorage.getItem("monitor_proxies"))
+            if(data){
+                this.setState({
+                    monitorProxies: data
+                })
+            }
+        }
+        if(localStorage.getItem("task_proxies")){
+            data = JSON.parse(localStorage.getItem("task_proxies"))
+            if(data){
+                this.setState({
+                    taskProxies: data
+                })
+            }
+        }
+    }
+
     importFromFile = () => {
         document.getElementById('fileid').click();
     }
+
+    handleChangeProxies = (event) => {
+        this.setState({
+            proxies: event.target.value
+        })
+    }
+
+    addProxies = () => {
+        var arr = this.state.proxies.split("\n");
+        var arr1 = [];
+        var data = [];
+        for (let i = 0; i < arr.length; i++) {
+            arr1[i] = arr[i].split(":");
+            if(!arr1[i]){
+                alert("Invalid type");
+                return;
+            } else {
+                let temp = []
+                for (let i = 0; i < arr1.length; i++) {
+                    temp = arr1[i]
+                    if(!temp[0] || !temp[1]){
+                        alert("Invalid type");
+                        return; 
+                    }
+                    arr1[i] = {
+                        ip: temp[0],
+                        port: temp[1],
+                        username: temp[2],
+                        password: temp[3],
+                        speed: 'Bad'
+                    }
+                    if(this.state.isMonitorProxies)
+                    {
+                        data = this.add("monitor_proxies", arr1[i]);
+                        this.setState({
+                            monitorProxies: data
+                        })
+                    }
+                    else {
+                        data = this.add("task_proxies", arr1[i])
+                        this.setState({
+                            taskProxies: data
+                        })
+                    }
+                }
+            }
+        }
+       
+    }
+
+    deleteProxy = (index, isWhichProxy) => {
+        if(isWhichProxy == 0) {
+            let data = []
+            if(localStorage.getItem("monitor_proxies")){
+                data = JSON.parse(localStorage.getItem("monitor_proxies"))
+                if(data){
+                    data.splice(index, 1)
+                    localStorage.setItem("monitor_proxies", JSON.stringify(data))
+                    this.setState({
+                        monitorProxies: data
+                    })
+                }
+            }
+        }
+        else {
+            let data = []
+            if(localStorage.getItem("task_proxies")){
+                data = JSON.parse(localStorage.getItem("task_proxies"))
+                if(data){
+                    data.splice(index, 1)
+                    localStorage.setItem("task_proxies", JSON.stringify(data))
+                    this.setState({
+                        taskProxies: data
+                    })
+                }
+            }
+        }
+    }
+
+    deleteAllProxies = (isWhichProxy) => {
+        if(isWhichProxy == 0) {
+            localStorage.setItem("monitor_proxies", JSON.stringify([]))
+            this.setState({
+                monitorProxies: null
+            })            
+        }
+        else {
+            localStorage.setItem("task_proxies", JSON.stringify([]))
+            this.setState({
+                taskProxies: null
+            })  
+        }
+    }
+
+    add = (t, obj) => {
+        let data = []
+        if(localStorage.getItem(t)){
+            data = JSON.parse(localStorage.getItem(t))
+            if(data){
+                obj["id"] = data.length+1
+                data.push(obj)
+                localStorage.setItem(t, JSON.stringify(data))
+            }
+        }else{
+            obj["id"] = 1
+            data.push(obj)
+            localStorage.setItem(t, JSON.stringify(data))
+        }
+        return data
+    }
+
     render() {
         return(
             <div className="proxies">
@@ -53,42 +212,33 @@ export default class Proxies extends Component {
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <tr>
-                                                        <td>1</td>
-                                                        <td>35.240.19.1</td>
-                                                        <td>3128</td>
-                                                        <td>brandon</td>
-                                                        <td>password</td>
-                                                        <td className="text-success">219 ms</td>
-                                                        <td>
-                                                            <a href="#" className="btn-action"><i
-                                                                className="fa fa-play-circle-o"></i></a>
-                                                            <a href="#" className="btn-action"><i className="fa fa-trash-o"></i></a>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>1</td>
-                                                        <td>35.240.19.1</td>
-                                                        <td>3128</td>
-                                                        <td>brandon</td>
-                                                        <td>password</td>
-                                                        <td className="text-danger">Bad</td>
-                                                        <td>
-                                                            <a href="#" className="btn-action"><i
-                                                                className="fa fa-play-circle-o"></i></a>
-                                                            <a href="#" className="btn-action"><i className="fa fa-trash-o"></i></a>
-                                                        </td>
-                                                    </tr>
+                                                    {this.state.monitorProxies ? this.state.monitorProxies.map((monitorProxy, index) => {
+                                                        return (
+                                                            <tr key={index}>
+                                                                <td>{index+1}</td>
+                                                                <td>{monitorProxy.ip}</td>
+                                                                <td>{monitorProxy.port}</td>
+                                                                <td>{monitorProxy.username}</td>
+                                                                <td>{monitorProxy.password}</td>
+                                                                <td className={monitorProxy.speed == "Bad" ? "text-danger" : "text-success"}>{monitorProxy.speed}</td>
+                                                                <td>
+                                                                    <a href="#" className="btn-action"><i
+                                                                        className="fa fa-play-circle-o"></i></a>
+                                                                    <a href="#" className="btn-action" onClick={()=>this.deleteProxy(index,0)}><i className="fa fa-trash-o"></i></a>
+                                                                </td>
+                                                            </tr>
+                                                        )
+                                                    }) : <tr></tr>}
                                                 </tbody>
                                             </table>
                                         </div>
                                     </div>
                                     <div className="card-footer">
                                         <a href="#exampleModalCenter" className="btn btn-add" data-toggle="modal"
-                                            data-target="#exampleModalCenter"><i className="fa fa-plus-circle"></i>
+                                            data-target="#exampleModalCenter" onClick={()=>this.setState({isMonitorProxies: true})}><i className="fa fa-plus-circle"></i>
                                             Add Proxies
                                         </a>
-                                        <a href="#" className="btn btn-all"><i className="fa fa-trash-o"></i> Clear All</a>
+                                        <a href="#" className="btn btn-all" onClick={()=>this.deleteAllProxies(0)}><i className="fa fa-trash-o"></i> Clear All</a>
                                         <a href="#" className="btn btn-test"><i className="fa fa-play"></i> Test</a>
                                     </div>
                                 </div>
@@ -136,42 +286,33 @@ export default class Proxies extends Component {
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <tr>
-                                                        <td>1</td>
-                                                        <td>35.240.19.1</td>
-                                                        <td>3128</td>
-                                                        <td>brandon</td>
-                                                        <td>password</td>
-                                                        <td className="text-success">219 ms</td>
-                                                        <td>
-                                                            <a href="#" className="btn-action"><i
-                                                                    className="fa fa-play-circle-o"></i></a>
-                                                            <a href="#" className="btn-action"><i className="fa fa-trash-o"></i></a>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>1</td>
-                                                        <td>35.240.19.1</td>
-                                                        <td>3128</td>
-                                                        <td>brandon</td>
-                                                        <td>password</td>
-                                                        <td className="text-danger">Bad</td>
-                                                        <td>
-                                                            <a href="#" className="btn-action"><i
-                                                                    className="fa fa-play-circle-o"></i></a>
-                                                            <a href="#" className="btn-action"><i className="fa fa-trash-o"></i></a>
-                                                        </td>
-                                                    </tr>
+                                                    {this.state.taskProxies ? this.state.taskProxies.map((taskProxy, index) => {
+                                                            return (
+                                                                <tr key={index}>
+                                                                    <td>{index+1}</td>
+                                                                    <td>{taskProxy.ip}</td>
+                                                                    <td>{taskProxy.port}</td>
+                                                                    <td>{taskProxy.username}</td>
+                                                                    <td>{taskProxy.password}</td>
+                                                                    <td className={taskProxy.speed == "Bad" ? "text-danger" : "text-success"}>{taskProxy.speed}</td>
+                                                                    <td>
+                                                                        <a href="#" className="btn-action"><i
+                                                                            className="fa fa-play-circle-o"></i></a>
+                                                                        <a href="#" className="btn-action" onClick={()=>this.deleteProxy(index,1)}><i className="fa fa-trash-o"></i></a>
+                                                                    </td>
+                                                                </tr>
+                                                            )
+                                                        }) : <tr></tr>}
                                                 </tbody>
                                             </table>
                                         </div>
                                     </div>
                                     <div className="card-footer">
                                         <a href="#exampleModalCenter" className="btn btn-add" data-toggle="modal"
-                                            data-target="#exampleModalCenter"><i className="fa fa-plus-circle"></i>
+                                            data-target="#exampleModalCenter" onClick={()=>this.setState({isMonitorProxies: false})}><i className="fa fa-plus-circle"></i>
                                             Add Proxies
                                         </a>
-                                        <a href="#" className="btn btn-all"><i className="fa fa-trash-o"></i> Clear All</a>
+                                        <a href="#" className="btn btn-all" onClick={()=>this.deleteAllProxies(1)}><i className="fa fa-trash-o"></i> Clear All</a>
                                         <a href="#" className="btn btn-test"><i className="fa fa-play"></i> Test</a>
                                     </div>
                                 </div>
@@ -194,12 +335,15 @@ export default class Proxies extends Component {
                                 <input id='buttonid' className="btn btn-upload" type='button' value='Import From File' onClick={()=> this.importFromFile()} />
 
                                 <div className="form-group">
-                                    <textarea className="form-control textarea1" rows="10"
-                                        placeholder="Enter Proxies As IP:PORT:USER:PASS"></textarea>
+                                    <textarea className="form-control textarea1" 
+                                        rows="10"
+                                        placeholder="Enter Proxies As IP:PORT:USER:PASS"
+                                        value={this.state.proxies}
+                                        onChange={this.handleChangeProxies}></textarea>
                                 </div>
 
                                 <div className="form-group">
-                                    <a href="#" className="btn btn-add1">Add</a>
+                                    <button className="btn btn-add1" data-dismiss="modal" aria-label="Close" onClick={()=>this.addProxies()}>Add</button>
                                 </div>
                             </div>
                         </div>

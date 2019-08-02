@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import isElectron from 'is-electron';
 
 export default class Settings extends Component {
     constructor(props) {
@@ -9,22 +10,46 @@ export default class Settings extends Component {
             apiKey: '',
             antiApiKey: '',
             webhookURL: '',
-            quantityOfTask: '',
             captcha: false,
-            desktop: true,
-            sound: true
+            desktop: false,
+            sound: false,
+            size: 'null',
+            profile: 'null',
+            quantityOfTask: '', 
+            profiles: []
+        }
+    }
+
+    componentDidMount() {
+        if(isElectron()){
+            window.storage.get('profiles', function(error, data) {
+                if (error) throw error;
+                if(JSON.parse(data.profiles) != null){
+                    localStorage.setItem("profiles", data.profiles)
+                }
+            });
+        } 
+
+        var data = []
+        if(localStorage.getItem("profiles")){
+            data = JSON.parse(localStorage.getItem("profiles"))
+            if(data){
+                this.setState({
+                    profiles: data
+                })
+            }
         }
     }
 
     handleChangeMonitorDelay = (event) => {
         this.setState({
-            monitorDelay: event.target.value
+            monitorDelay: (event.target.validity.valid) ? event.target.value : this.state.monitorDelay
         });
     }
 
     handleChangeErrorDelay = (event) => {
         this.setState({
-            errorDelay: event.target.value
+            errorDelay: (event.target.validity.valid) ? event.target.value : this.state.errorDelay
         });
     }
 
@@ -52,22 +77,77 @@ export default class Settings extends Component {
         })        
     }
 
-    handleChangeCaptcha = (event) => {
+    handleChangeCaptcha = () => {
         this.setState({
-            captcha: !event.target.value
+            captcha: !this.state.captcha
         })
     }
 
-    handleChangeDesktop = (event) => {
+    handleChangeDesktop = () => {
         this.setState({
-            desktop: !event.target.value
+            desktop: !this.state.desktop
         })
     }
 
-    handleChangeSound = (event) => {
+    handleChangeSound = () => {
         this.setState({
-            sound: !event.target.value
+            sound: !this.state.sound
         })
+    }
+
+    handleChangeSize = (event) => {
+        this.setState({
+            size: event.target.value
+        })
+    }
+
+    handleChangeProfile = (event) => {
+        this.setState({
+            profile: event.target.value
+        })
+    }
+
+    saveSettings = () => {
+        let obj = {notification: {}, captcha: {}, quick_task: {}};
+        obj["monitor_delay"] = this.state.monitorDelay;
+        obj["error_dealy"] = this.state.errorDelay;
+        obj["notification"]["captcha"] = this.state.captcha;
+        obj["notification"]["desktop"] = this.state.desktop;
+        obj["notification"]["sound"] = this.state.sound;
+        obj["webhooks"] = this.state.webhookURL;
+        obj["quick_task"]["size"] = this.state.size;
+        obj["quick_task"]["profile"] = this.state.profile;
+        obj["quick_task"]["quantity_of_task"] = this.state.quantityOfTask;
+        obj["captcha"]["apiKey"] = this.state.apiKey;
+        obj["captcha"]["antiApiKey"] = this.state.antiApiKey;
+
+        console.log("obj", obj);
+        this.addSettings("settings", obj);
+        alert("Settings are saved successfully")
+    }
+
+    addSettings(t, obj) {
+        let data = []
+        if(localStorage.getItem(t)){
+            data = JSON.parse(localStorage.getItem(t))
+            if(data){
+                let index = data.findIndex((obj1=>obj1.profileName==obj.profileName))
+                console.log("Index : "+index)
+                if(index>=0){
+                    data[index] = Object.assign(data[index], obj);
+                    localStorage.setItem(t, JSON.stringify(data))
+                    return data
+                }
+                obj["id"] = data.length+1
+                data.push(obj)
+                localStorage.setItem(t, JSON.stringify(data))
+            }
+        }else{
+            obj["id"] = 1
+            data.push(obj)
+            localStorage.setItem(t, JSON.stringify(data))
+        }
+        return data
     }
 
     render() {
@@ -107,7 +187,9 @@ export default class Settings extends Component {
                                                                     <input type="text" 
                                                                         className="form-control form-control-sm" 
                                                                         placeholder="3500" 
-                                                                        onChange={e=>this.handleChangeMonitorDelay}/>
+                                                                        pattern="[0-9]*"
+                                                                        value={this.state.monitorDelay}
+                                                                        onChange={this.handleChangeMonitorDelay}/>
                                                                 </div>
                                                             </div>
                                                             <div className="col-6">
@@ -116,7 +198,9 @@ export default class Settings extends Component {
                                                                     <input type="text" 
                                                                         className="form-control form-control-sm" 
                                                                         placeholder="0" 
-                                                                        onChange={e=>this.handleChangeErrorDelay}/>
+                                                                        pattern="[0-9]*"
+                                                                        value={this.state.errorDelay}
+                                                                        onChange={this.handleChangeErrorDelay}/>
                                                                 </div>
                                                             </div>
 
@@ -133,7 +217,8 @@ export default class Settings extends Component {
                                                                     <input type="text" 
                                                                         className="form-control form-control-sm" 
                                                                         placeholder="Enter Api Key" 
-                                                                        onChange={e=>this.handleChangeApiKey}/>
+                                                                        value={this.state.apiKey}
+                                                                        onChange={this.handleChangeApiKey}/>
                                                                 </div>
                                                             </div>
                                                             <div className="col-6">
@@ -142,7 +227,8 @@ export default class Settings extends Component {
                                                                     <input type="text"
                                                                         className="form-control form-control-sm" 
                                                                         placeholder="Enter Api Key" 
-                                                                        onChange={e=>this.handleChangeAntiApiKey}/>
+                                                                        value={this.state.antiApiKey}
+                                                                        onChange={this.handleChangeAntiApiKey}/>
                                                                 </div>
                                                             </div>
 
@@ -165,8 +251,7 @@ export default class Settings extends Component {
                                                                             <input id="cmn-toggle-4" 
                                                                                 className="cmn-toggle cmn-toggle-round-flat" 
                                                                                 type="checkbox"
-                                                                                defaultChecked={this.state.captcha}
-                                                                                onChange={e=>this.handleChangeCaptcha}
+                                                                                onChange={this.handleChangeCaptcha}
                                                                             />
                                                                             <label htmlFor="cmn-toggle-4"></label>
                                                                         </div>
@@ -183,8 +268,7 @@ export default class Settings extends Component {
                                                                             <input id="cmn-toggle-5" 
                                                                                 className="cmn-toggle cmn-toggle-round-flat" 
                                                                                 type="checkbox"
-                                                                                defaultChecked={this.state.desktop}
-                                                                                onChange={e=>this.handleChangeDesktop}
+                                                                                onChange={this.handleChangeDesktop}
                                                                             /> 
                                                                             <label htmlFor="cmn-toggle-5"></label>
                                                                         </div>
@@ -201,8 +285,7 @@ export default class Settings extends Component {
                                                                             <input id="cmn-toggle-6" 
                                                                                 className="cmn-toggle cmn-toggle-round-flat" 
                                                                                 type="checkbox"
-                                                                                defaultChecked={this.state.sound}
-                                                                                onChange={e=>this.handleChangeSound}
+                                                                                onChange={this.handleChangeSound}
                                                                             />
                                                                             <label htmlFor="cmn-toggle-6"></label>
                                                                         </div>
@@ -231,7 +314,8 @@ export default class Settings extends Component {
                                                                         <input type='text' 
                                                                             className="form-control form-control-sm" 
                                                                             placeholder="Discover Webhook URL"
-                                                                            onChange={e=>this.handleChangeWebhookURL}
+                                                                            value={this.state.webhookURL}
+                                                                            onChange={this.handleChangeWebhookURL}
                                                                         />
                                                                         <span className="fab fa-discord form-control-feedback2"></span>
                                                                     </div>
@@ -260,22 +344,27 @@ export default class Settings extends Component {
                                                         <div className="row">
                                                             <div className="col-6">
                                                                 <div className="form-group">
-                                                                            <select className="form-control form-control-sm">
-                                                                                <option>Size</option>
-                                                                                <option>Size</option>
-                                                                                <option>Size</option>
-                                                                                <option>Size</option>
+                                                                            <select className="form-control form-control-sm"
+                                                                                value={this.state.size}
+                                                                                onChange={this.handleChangeSize}>
+                                                                                <option value="null" disabled>Select Size</option>
+                                                                                <option value="small">Small</option>
+                                                                                <option value="large">Large</option>
+                                                                                <option value="extra-large">Extra Large</option>
                                                                             </select>
                                                                         </div>
                                                             </div>
                                                             <div className="col-6">
                                                                 <div className="form-group">
-                                                                            <select className="form-control form-control-sm">
-                                                                                <option>Profile</option>
-                                                                                <option>Profile</option>
-                                                                                <option>Profile</option>
-                                                                                <option>Profile</option>
-                                                                                
+                                                                            <select className="form-control form-control-sm"
+                                                                                value={this.state.profile}
+                                                                                onChange={this.handleChangeProfile}>
+                                                                                    <option value="null" disabled>Select Profile</option>
+                                                                                    {this.state.profiles ? this.state.profiles.map((profile, index)=>{
+                                                                                        return (
+                                                                                            <option value={profile.profileName} key={index}>{profile.profileName}</option>
+                                                                                        )
+                                                                                    }) : ''}                                                                                                                                                              
                                                                             </select>
                                                                         </div>
                                                             </div>
@@ -284,7 +373,8 @@ export default class Settings extends Component {
                                                                     <input type="text" 
                                                                         className="form-control form-control-sm" 
                                                                         placeholder="Quantity of Task" 
-                                                                        onChange={e=>this.handleChangeQuantityOfTask}/>
+                                                                        value={this.state.quantityOfTask}
+                                                                        onChange={this.handleChangeQuantityOfTask}/>
                                                                 </div>
                                                             </div>
 
@@ -302,8 +392,7 @@ export default class Settings extends Component {
                                     </div>
                                 </div>
                                 <div className="card-footer">
-                                    <a href="#" className="btn btn-save">Save</a>
-                                
+                                    <a className="btn btn-save" onClick={()=>this.saveSettings()}>Save</a>
                                 </div>
                             </div>
                         </div>

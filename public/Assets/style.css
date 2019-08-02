@@ -27,7 +27,7 @@ body{
     padding-top: 20px;
     background: linear-gradient(#282d46, #2b304a);
     padding-bottom: 1px;
-
+    -webkit-app-region: drag;
 }
 .container-fluid{
     padding-left: 40px;
@@ -36,6 +36,10 @@ body{
 .header img{
     width: 50px;
     left: 0px;
+}
+
+.header .logoLink {
+    -webkit-app-region: no-drag;
 }
 
 .header-tabs{
@@ -53,6 +57,7 @@ body{
 }
 .header-tabs .nav-tabs {
     border-bottom: 0px;
+    -webkit-app-region: no-drag;
 }
 .header-tabs .nav-tabs .nav-link:focus, .nav-tabs .nav-link:hover {
     color: #fff;
@@ -340,11 +345,15 @@ tbody .btn-action:hover{
     margin-top: 0px;
     min-height:100px;
 }
+
 .proxies2.card{
     margin-top: 0px;
-    min-height:700px;
+    height:700px;
     background: #272d45;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
+
 .footsite2{
     font-size: 12px;
     margin-top: 11px;
@@ -356,8 +365,8 @@ tbody .btn-action:hover{
 }
 .task-btns{
     text-align: center;
-    margin-top: 30px;
-    margin-bottom: 30px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 .task-btns a{
     font-family: 'ProximaNova_Semibold';
@@ -378,8 +387,8 @@ tbody .btn-action:hover{
     text-align: center;
     padding-left: 10%;
     padding-right: 10%;
-    margin-top: 30px;
-    margin-bottom: 30px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 .edit-form .form-group {
     margin-bottom: 0rem; 
@@ -404,7 +413,7 @@ tbody .btn-action:hover{
 .window-btns{
     text-align: center;
     margin-top: 15px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 .window-btns a{
     font-family: 'ProximaNova_Semibold';
@@ -413,7 +422,6 @@ tbody .btn-action:hover{
     text-decoration: none;
     width: 160px;
     margin:5px;
-    margin-top: 15px;
     border-radius: 3px;
     border: 1px solid #5f83c6;
 }
@@ -422,10 +430,29 @@ tbody .btn-action:hover{
     background:#5f83c6;
 }
 
+#minimum:hover{
+    color: #fff; 
+    background:#5f83c6;
+    cursor: pointer;
+}
+
+#minimum{
+    -webkit-app-region: no-drag;
+}
+
+#close{
+    -webkit-app-region: no-drag;
+}
+#close:hover{
+    color: #5f83c6; 
+    /* background:#5f83c6; */
+    cursor: pointer;
+}
+
 .version{
     text-align: center;
     margin-top: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 14px;
 }
 .version label{
     font-size: 14px;

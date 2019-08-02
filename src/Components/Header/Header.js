@@ -2,14 +2,13 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 
 export default class Header extends Component {
-
     render() {
         return(
             <div className="header">
                 <div className="container-fluid">
                     <div className="row">
                         <div className="col-md-3">
-                            <Link to="/">
+                            <Link to="/" className="logoLink">
                                 <img src="Assets/images/logo.png" alt="" />
                             </Link>
                         </div>

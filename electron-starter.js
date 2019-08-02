@@ -11,8 +11,10 @@ function createWindow () {
     width: 1500,
     height: 900,
     frame: false,
+    resizable: false,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      preload: __dirname + '/preload.js'
     }
   })
   mainWindow.setMenuBarVisibility(false);
@@ -21,20 +23,67 @@ function createWindow () {
   mainWindow.loadURL('http://localhost:3000')
   // electron window minimum, close
   mainWindow.webContents.executeJavaScript(`
-    const { remote } = require('electron')
+    const { remote, ipcMain } = require('electron')
+    const os = require('os');
+    const storage = require('electron-json-storage');
+    storage.setDataPath(os.homedir()+'/AppData/Local/Sofrito/test');
+ 
     document.getElementById("minimum").addEventListener("click", function(e) {
       var window = remote.getCurrentWindow(); 
       window.minimize();
     })
 
     document.getElementById("close").addEventListener("click", function (e) {
-      var window = remote.getCurrentWindow();
-      window.close();
+
+          storage.remove('settings', function(error) {
+            if (error) throw error;
+          });
+
+          storage.remove('monitor_proxies', function(error) {
+            if (error) throw error;
+          });
+
+          storage.remove('task_proxies', function(error) {
+            if (error) throw error;
+          });
+
+          storage.remove('tasks', function(error) {
+            if (error) throw error;
+          });
+
+          storage.remove('profiles', function(error) {
+            if (error) throw error;
+          });
+
+          storage.set('settings', { settings: localStorage.getItem("settings")}, function(error) {
+            if (error) throw error;
+          });
+
+          storage.set('monitor_proxies', { monitor_proxies: localStorage.getItem("monitor_proxies")}, function(error) {
+            if (error) throw error;
+          });
+
+          storage.set('task_proxies', { task_proxies: localStorage.getItem("task_proxies")}, function(error) {
+            if (error) throw error;
+          });
+    
+          storage.set('tasks', { tasks: localStorage.getItem("tasks")}, function(error) {
+            if (error) throw error;
+          });
+
+          storage.set('profiles', { profiles: localStorage.getItem("profiles")}, function(error) {
+            if (error) throw error;
+          });
+
+      setTimeout(function() {
+        var window = remote.getCurrentWindow();
+        window.close();
+      }, 1000);
     }); 
   `)
 
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools()
+  mainWindow.webContents.openDevTools()
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
