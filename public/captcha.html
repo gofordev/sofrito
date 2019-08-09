@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Proxies</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="Assets/bootstrap-4.3.1/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+        <script src="https://kit.fontawesome.com/1b3ccb9275.js"></script>
+        <link href="Assets/style.css" rel="stylesheet" type="text/css"/>
+    </head>
+    <body>
+        <div class="captcha-modal modal2" id="exampleModalCenter2">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalCenterTitle">Captcha (1/10)</h5>
+                        <i style="color: #fff; right: 38px; top: 20px; float: right; position: absolute; font-size: 14px; cursor: pointer;" class="fa fa-minus-square-o" id="captcha-minimize"></i>
+                        <i style="color: #fff; right: 15px; top: 20px; float: right; position: absolute; font-size: 14px; cursor: pointer;" class="fa fa-times" id="captcha-close"></i>
+                    </div>
+                    <div class="modal-body">
+                        <p>WAITING FOR CAPTCHA...</p>
+                        <div class="row">
+                            <div class="col-md-2"></div>
+                            <div class="col-md-8">
+                                <div class="form-group proxy">
+                                    <input type="text" class="form-control form-control-sm" placeholder="Enter Proxy" />
+                                </div>
+                            </div>
+                            <div class="col-md-2"></div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-login" >Login</button>
+                        <button type="button" class="btn btn-clear">Clear</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="Assets/jquery-3.3.1.min.js" type="text/javascript"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" ></script>
+        <script src="Assets/bootstrap-4.3.1/js/bootstrap.min.js" type="text/javascript"></script>
+        <script>
+            document.getElementById("captcha-close").addEventListener("click", function (e) {
+                const { remote } = require('electron')
+                var win = remote.getCurrentWindow();
+                win.close();
+            })
+            document.getElementById("captcha-minimize").addEventListener("click", function (e) {
+                const { remote } = require('electron')
+                var win = remote.getCurrentWindow();
+                win.minimize();
+            })
+        </script>
+    </body>
+</html>
+    

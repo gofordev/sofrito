@@ -4,6 +4,12 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+
+global.success = [];
+global.carted = 0;
+global.copped = 0;
+global.delay = 3500;
+global.stopped = {};
+ReactDOM.render( < App / > , document.getElementById('root'));
 
 serviceWorker.unregister();

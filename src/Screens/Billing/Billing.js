@@ -1,4 +1,6 @@
-import React, { Component } from 'react';
+import React, {
+    Component
+} from 'react';
 import isElectron from 'is-electron';
 
 export default class Billing extends Component {
@@ -34,23 +36,22 @@ export default class Billing extends Component {
     }
 
     componentDidMount() {
-        if(isElectron()){
-            window.storage.get('profiles', function(error, data) {
-                if (error) throw error;
-                if(JSON.parse(data.profiles) != null){
-                    localStorage.setItem("profiles", data.profiles)
+
+        try {
+
+            let data = []
+            if (localStorage.getItem("profiles")) {
+                data = JSON.parse(localStorage.getItem("profiles"))
+                if (data) {
+                    this.setState({
+                        savedProfiles: data
+                    })
                 }
-            });
-        }        
-        let data = []
-        if(localStorage.getItem("profiles")){
-            data = JSON.parse(localStorage.getItem("profiles"))
-            if(data){
-                this.setState({
-                    savedProfiles: data
-                })
             }
-        }
+        } catch (e) {
+
+        };
+
     }
 
     handleChangeBillingFirstName = (event) => {
@@ -68,67 +69,67 @@ export default class Billing extends Component {
     handleChangeBillingAddress = (event) => {
         this.setState({
             billingAddress: event.target.value
-        });        
+        });
     }
 
     handleChangeBillingAptSuite = (event) => {
         this.setState({
             billingAptSuite: event.target.value
-        });        
+        });
     }
 
     handleChangeBillingCity = (event) => {
         this.setState({
             billingCity: event.target.value
-        });             
+        });
     }
 
     handleChangeBillingZipCode = (event) => {
         this.setState({
             billingZipCode: event.target.value
-        });             
+        });
     }
 
     handleChangeProfileName = (event) => {
         this.setState({
             profileName: event.target.value
-        });             
+        });
     }
 
     handleChangeProfileEmail = (event) => {
         this.setState({
             profileEmail: event.target.value
-        });             
+        });
     }
 
     handleChangeProfilePhone = (event) => {
         this.setState({
             profilePhone: event.target.value
-        });   
+        });
     }
 
     handleChangePaymentName = (event) => {
         this.setState({
             paymentName: event.target.value
-        });    
+        });
     }
 
     handleChangePaymentCardNumber = (event) => {
         this.setState({
             paymentCardNumber: event.target.value
-        });    
+        });
     }
 
     handleChangePaymentExpairy = (event) => {
         this.setState({
             paymentExpairy: event.target.value
-        });    
+        });
     }
 
     handleChangePaymentCSV = (event) => {
         this.setState({
             paymentCSV: event.target.value
-        });    
+        });
     }
     handleChangeShippingFirstName = (event) => {
         this.setState({
@@ -145,25 +146,25 @@ export default class Billing extends Component {
     handleChangeShippingAddress = (event) => {
         this.setState({
             shippingAddress: event.target.value
-        });        
+        });
     }
 
     handleChangeShippingAptSuite = (event) => {
         this.setState({
             shippingAptSuite: event.target.value
-        });        
+        });
     }
 
     handleChangeShippingCity = (event) => {
         this.setState({
             shippingCity: event.target.value
-        });             
+        });
     }
 
     handleChangeShippingZipCode = (event) => {
         this.setState({
             shippingZipCode: event.target.value
-        });             
+        });
     }
 
     handleChangeSameAsShipping = (event) => {
@@ -225,7 +226,11 @@ export default class Billing extends Component {
     }
 
     createNewProfile = () => {
-        let obj = {card: {}, billing: {}, shipping: {}}
+        let obj = {
+            card: {},
+            billing: {},
+            shipping: {}
+        }
         obj["profileName"] = this.state.profileName;
         obj["profileEmail"] = this.state.profileEmail;
         obj["profilePhone"] = this.state.profilePhone;
@@ -245,7 +250,7 @@ export default class Billing extends Component {
         obj["shipping"]["country"] = this.state.shippingCountry;
         obj["shipping"]["state"] = this.state.shippingState;
 
-        if(this.state.sameAsShipping){
+        if (this.state.sameAsShipping) {
             obj["billing"]["first_name"] = this.state.shippingFirstName;
             obj["billing"]["last_name"] = this.state.shippingLastName;
             obj["billing"]["address"] = this.state.shippingAddress;
@@ -253,8 +258,8 @@ export default class Billing extends Component {
             obj["billing"]["zip_code"] = this.state.shippingZipCode;
             obj["billing"]["city"] = this.state.shippingCity;
             obj["billing"]["country"] = this.state.shippingCountry;
-            obj["billing"]["state"] = this.state.shippingState; 
-        }else{
+            obj["billing"]["state"] = this.state.shippingState;
+        } else {
             obj["billing"]["first_name"] = this.state.billingFirstName;
             obj["billing"]["last_name"] = this.state.billingLastName;
             obj["billing"]["address"] = this.state.billingAddress;
@@ -268,10 +273,9 @@ export default class Billing extends Component {
         console.log("saving billing info")
 
         console.log(obj);
-        if(obj.profileName == ""){
+        if (obj.profileName == "") {
             alert("You must fill the profile name field")
-        }
-        else{
+        } else {
             var AllProfiles = this.addProfile("profiles", obj);
             this.setState({
                 savedProfiles: AllProfiles
@@ -309,25 +313,25 @@ export default class Billing extends Component {
     }
 
     makeString = (length) => {
-        var result           = '';
-        var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        var result = '';
+        var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         var charactersLength = characters.length;
-        for ( var i = 0; i < length; i++ ) {
-           result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        for (var i = 0; i < length; i++) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
         }
         return result;
-     }
+    }
 
     editProfile = (index) => {
         let data = []
         let selectedProfile = {}
-        if(localStorage.getItem("profiles")){
+        if (localStorage.getItem("profiles")) {
             data = JSON.parse(localStorage.getItem("profiles"))
-            if(data){
+            if (data) {
                 selectedProfile = data[index]
             }
         }
-        console.log("index",selectedProfile)
+        console.log("index", selectedProfile)
 
         this.setState({
             profileName: selectedProfile["profileName"],
@@ -353,39 +357,116 @@ export default class Billing extends Component {
             billingZipCode: selectedProfile["billing"]["zip_code"],
             billingCity: selectedProfile["billing"]["city"],
             billingCountry: selectedProfile["billing"]["country"],
-            billingState:  selectedProfile["billing"]["state"]
+            billingState: selectedProfile["billing"]["state"]
         })
     }
+
+
+
+
+    duplicateProfile = (index) => {
+        let data = []
+        if (localStorage.getItem("profiles")) {
+            data = JSON.parse(localStorage.getItem("profiles"))
+            if (data) {
+                let profile = data[index]
+
+
+                data.push(profile);
+
+                let string = this.makeString(2);
+                //return console.log( data[data.length - 1].id + 1)
+                data[index + 1].id = data[index + 1].id + 1;
+                data[index + 1].id = data[index + 1].profileName = data[index + 1].id = data[index + 1].profileName + " " + string;
+                data[index + 1].id = data[index + 1].shipping.profileName = data[index + 1].id = data[index + 1].shipping.profileName + " " + string;
+
+
+                console.log(data[index + 1])
+
+
+                let selectedProfile = data[index + 1];
+                var AllProfiles = this.addProfile("profiles", data[index + 1]);
+
+                this.setState({
+                    profileName: selectedProfile["profileName"],
+                    profileEmail: selectedProfile["profileEmail"],
+                    profilePhone: selectedProfile["profilePhone"],
+                    paymentName: selectedProfile["card"]["name"],
+                    paymentCardNumber: selectedProfile["card"]["number"],
+                    paymentExpairy: selectedProfile["card"]["expairy"],
+                    paymentCSV: selectedProfile["card"]["csv"],
+                    profileName: selectedProfile["shipping"]["profileName"],
+                    shippingFirstName: selectedProfile["shipping"]["first_name"],
+                    shippingLastName: selectedProfile["shipping"]["last_name"],
+                    shippingAddress: selectedProfile["shipping"]["address"],
+                    shippingAptSuite: selectedProfile["shipping"]["apt_suite"],
+                    shippingZipCode: selectedProfile["shipping"]["zip_code"],
+                    shippingCity: selectedProfile["shipping"]["city"],
+                    shippingCountry: selectedProfile["shipping"]["country"],
+                    shippingState: selectedProfile["shipping"]["state"],
+                    billingFirstName: selectedProfile["billing"]["first_name"],
+                    billingLastName: selectedProfile["billing"]["last_name"],
+                    billingAddress: selectedProfile["billing"]["address"],
+                    billingAptSuite: selectedProfile["billing"]["apt_suite"],
+                    billingZipCode: selectedProfile["billing"]["zip_code"],
+                    billingCity: selectedProfile["billing"]["city"],
+                    billingCountry: selectedProfile["billing"]["country"],
+                    billingState: selectedProfile["billing"]["state"]
+                });
+
+                this.setState({
+                    savedProfiles: AllProfiles
+                })
+
+
+
+                //  this.clearFields();
+
+
+
+            }
+        }
+
+    };
+
 
     addProfile = (t, obj) => {
         let data = []
 
-        if(localStorage.getItem(t)){
+        if (localStorage.getItem(t)) {
             data = JSON.parse(localStorage.getItem(t))
-            if(data){
-                let index = data.findIndex((obj1=>obj1.profileName==obj.profileName))
-                if(index>=0){
+            if (data) {
+                let index = data.findIndex((obj1 => obj1.profileName == obj.profileName))
+                if (index >= 0) {
                     data[index] = Object.assign(data[index], obj);
                     localStorage.setItem(t, JSON.stringify(data))
                     return data
                 }
-                obj["id"] = data.length+1
+                obj["id"] = data.length + 1
                 data.push(obj)
-                localStorage.setItem(t, JSON.stringify(data))
+                localStorage.setItem(t, JSON.stringify(data));
+
+                this.setState({
+                    savedProfiles: data
+                })
             }
-        }else{
+        } else {
             obj["id"] = 1
             data.push(obj)
-            localStorage.setItem(t, JSON.stringify(data))
+            localStorage.setItem(t, JSON.stringify(data));
+
+            this.setState({
+                savedProfiles: data
+            })
         }
         return data
     }
 
     deleteProfile = (index) => {
         let data = []
-        if(localStorage.getItem("profiles")){
+        if (localStorage.getItem("profiles")) {
             data = JSON.parse(localStorage.getItem("profiles"))
-            if(data){
+            if (data) {
                 data.splice(index, 1)
                 localStorage.setItem("profiles", JSON.stringify(data))
                 this.setState({
@@ -413,12 +494,12 @@ export default class Billing extends Component {
                                                 </div>
                                                 <div className="col-3">
                                                     <div className="footsite footsite2">
-                                                        <a href="#"><i className="fa fa-save"></i></a>
+                                                        <i className="fa fa-save"></i>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="card-body">
+                                        <div className="card-body saved-profile custom-scroll">
                                             {this.state.savedProfiles ? this.state.savedProfiles.map((profile, index) => {
                                                 return (
                                                     <div className="saved-profiles" key={index}>
@@ -431,7 +512,7 @@ export default class Billing extends Component {
                                                             <div className="col-5">
                                                                 <div className="btns">
                                                                     <a href="#" className="btn-action" onClick={()=>this.editProfile(index)}><i className="fa fa-pencil"></i></a>
-                                                                    <a href="#" className="btn-action" onClick={()=>this.editProfile(index)}><i className="fa fa-refresh"></i></a>
+                                                                    <a href="#" className="btn-action" onClick={()=>this.duplicateProfile(index)}><i className="fa fa-refresh"></i></a>
                                                                     <a href="#" className="btn-action" onClick={()=>this.deleteProfile(index)}><i className="fa fa-trash-o"></i></a>
                                                                 </div>
                                                             </div>

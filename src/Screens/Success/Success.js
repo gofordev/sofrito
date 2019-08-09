@@ -1,90 +1,28 @@
-import React, { Component } from 'react';
-import { bigIntLiteral } from '@babel/types';
+import React, {
+    Component
+} from 'react';
+
 
 export default class Success extends Component {
     constructor(props) {
         super(props)
+
+        console.log(global.success)
         this.state = {
-            successObj: [{info:{}}]
+            successObj: global.success
         }
     }
 
     componentDidMount() {
-        const obj = [ 
-            {
-                id: 1,
-                image: "https://stockx-360.imgix.net/adidas-Yeezy-Boost-350-V2-Lundmark/Images/adidas-Yeezy-Boost-350-V2-Lundmark/Lv2/img01.jpg?auto=format,compress&q=90&updated_at=1562948358&w=1000",
-                site: "Adidas",
-                region: "US",
-                product: "adidas Yeezy Boost 350 V2 Lundmark (Non Reflective)",
-                status: "1",
-                info: {
-                    price: "$220",
-                    profile: "Debit",
-                    size: "12",
-                },
-            },
-            {
-                id: 2,
-                image: "https://stockx-360.imgix.net/adidas-Yeezy-Boost-350-V2-Lundmark/Images/adidas-Yeezy-Boost-350-V2-Lundmark/Lv2/img01.jpg?auto=format,compress&q=90&updated_at=1562948358&w=1000",
-                site: "Adidas",
-                region: "US",
-                product: "adidas Yeezy Boost 350 V2 Lundmark (Non Reflective)",
-                status: "2",
-                info: {
-                    price: "$220",
-                    profile: "Debit",
-                    size: "12",
-                },
-            },
-            {
-                id: 3,
-                image: "https://stockx-360.imgix.net/adidas-Yeezy-Boost-350-V2-Lundmark/Images/adidas-Yeezy-Boost-350-V2-Lundmark/Lv2/img01.jpg?auto=format,compress&q=90&updated_at=1562948358&w=1000",
-                site: "Adidas",
-                region: "US",
-                product: "adidas Yeezy Boost 350 V2 Lundmark (Non Reflective)",
-                status: "3",
-                info: {
-                    price: "$220",
-                    profile: "Debit",
-                    size: "12",
-                },
-            },
-            {
-                id: 4,
-                image: "https://stockx-360.imgix.net/adidas-Yeezy-Boost-350-V2-Lundmark/Images/adidas-Yeezy-Boost-350-V2-Lundmark/Lv2/img01.jpg?auto=format,compress&q=90&updated_at=1562948358&w=1000",
-                site: "Adidas",
-                region: "US",
-                product: "adidas Yeezy Boost 350 V2 Lundmark (Non Reflective)",
-                status: "4",
-                info: {
-                    price: "$220",
-                    profile: "Debit",
-                    size: "12",
-                },
-            },
-            {
-                id: 5,
-                image: "https://stockx-360.imgix.net/adidas-Yeezy-Boost-350-V2-Lundmark/Images/adidas-Yeezy-Boost-350-V2-Lundmark/Lv2/img01.jpg?auto=format,compress&q=90&updated_at=1562948358&w=1000",
-                site: "Adidas",
-                region: "US",
-                product: "adidas Yeezy Boost 350 V2 Lundmark (Non Reflective)",
-                status: "5",
-                info: {
-                    price: "$220",
-                    profile: "Debit",
-                    size: "12",
-                },
-            },
-
-        ];
-        this.setState({
-            successObj: obj
-        })
+        setInterval(() => {
+            this.setState({
+                successObj: global.success,
+            });
+        }, 1000);
     }
 
     statusRender = (status) => {
-        console.log("status", status)
+      //  console.log("status", status)
         switch(status) {
             case "1": 
                 return (
@@ -202,47 +140,51 @@ export default class Success extends Component {
         return(
             <div className="success">
                 <div className="tab-pane fade show active" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                    <div className="proxies success-table">
-                        <table className="table table-recover">
-                            <thead>
-                                <tr>
-                                    <th>Site</th>
-                                    <th>Image</th>
-                                    <th>Product</th>
-                                    <th>Progress</th>
-                                    <th>info</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {this.state.successObj ? this.state.successObj.map((successObj, index) => {
-                                    return (
-                                        <tr key={index}>
-                                            <td>
-                                                <div className="company-name">Adidas<br />
-                                                    <span className="location">US Region</span>
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <img src={successObj.image} alt=""/>
-                                            </td>
-                                            <td>{successObj.product}</td>
-                                            <td>
-                                                {this.statusRender(successObj.status)}
-                                            </td>
-                                            <td>
-                                                Price - {successObj.info.price}<br />
-                                                Profile - {successObj.info.profile}<br />
-                                                Size - {successObj.info.size}
-                                            </td>
-                                            <td>
-                                                <a href="#" className="btn-action" onClick={()=>this.deleteProgress(index)}><i className="fa fa-trash-o"></i></a>
-                                            </td>
+                    <div className="success card">
+                        <div className="card-body">
+                            <div className="proxies success-table custom-scroll">
+                                <table className="table table-recover">
+                                    <thead>
+                                        <tr>
+                                            <th>Site</th>
+                                            <th>Image</th>
+                                            <th>Product</th>
+                                            <th>Progress</th>
+                                            <th>Info</th>
+                                            <th></th>
                                         </tr>
-                                    )
-                                }) : <tr></tr>}
-                            </tbody>
-                        </table>
+                                    </thead>
+                                    <tbody>
+                                        {this.state.successObj ? this.state.successObj.map((successObj, index) => {
+                                            return (
+                                                <tr key={index}>
+                                                    <td>
+                                                        <div className="company-name">Adidas<br />
+                                                            <span className="location">US Region</span>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <img src={successObj.image} alt=""/>
+                                                    </td>
+                                                    <td>{successObj.product}</td>
+                                                    <td>
+                                                        {this.statusRender(successObj.status)}
+                                                    </td>
+                                                    <td>
+                                                        Price - {successObj.info.price}<br />
+                                                        Profile - {successObj.info.profile}<br />
+                                                        Size - {successObj.info.size}
+                                                    </td>
+                                                    <td>
+                                                        <a href="#" className="btn-action" onClick={()=>this.deleteProgress(index)}><i className="fa fa-trash-o"></i></a>
+                                                    </td>
+                                                </tr>
+                                            )
+                                        }) : <tr></tr>}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>               
             </div>

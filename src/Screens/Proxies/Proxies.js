@@ -1,11 +1,15 @@
-import React, { Component } from 'react';
+import React, {
+    Component
+} from 'react';
 import isElectron from 'is-electron';
+const ProxyTester = require("../../modules/proxy-tester/index");
+
 
 export default class Proxies extends Component {
 
     constructor(props) {
         super(props);
-        this.state=({
+        this.state = ({
             proxies: '',
             isMonitorProxies: true,
             monitorProxies: null,
@@ -13,41 +17,164 @@ export default class Proxies extends Component {
         })
     }
 
-    componentDidMount() {
-        if(isElectron()){
-            window.storage.get('monitor_proxies', function(error, data) {
-                if (error) throw error;
-                if(JSON.parse(data.monitor_proxies) != null){
-                    localStorage.setItem("monitor_proxies", data.monitor_proxies)
-                }
-            });
-    
-            window.storage.get('task_proxies', function(error, data) {
-                if (error) throw error;
-                if(JSON.parse(data.task_proxies) != null){
-                    localStorage.setItem("task_proxies", data.task_proxies)
-                }
-            });
-        }
+
+
+
+    componentWillMount() {
+
+        try {
+
+            if (isElectron()) {
+                window.storage.get('monitor_proxies', function (error, data) {
+                    if (error) throw error;
+                    if (JSON.stringify(data.monitor_proxies) != null) {
+                        localStorage.setItem("monitor_proxies", data.monitor_proxies)
+                    }
+                });
+
+                window.storage.get('task_proxies', function (error, data) {
+                    if (error) throw error;
+                    if (JSON.stringify(data.task_proxies) != null) {
+                        localStorage.setItem("task_proxies", data.task_proxies)
+                    }
+                });
+            }
+
+        } catch (e) {
+
+        };
+
 
         let data = []
-        if(localStorage.getItem("monitor_proxies")){
-            data = JSON.parse(localStorage.getItem("monitor_proxies"))
-            if(data){
+        if (localStorage.getItem("monitor_proxies")) {
+            data = JSON.parse(localStorage.getItem("monitor_proxies"));
+            data = data.filter(obj => obj.ip !== undefined);
+
+            global.proxies = data;
+
+            if (data) {
                 this.setState({
                     monitorProxies: data
                 })
             }
         }
-        if(localStorage.getItem("task_proxies")){
-            data = JSON.parse(localStorage.getItem("task_proxies"))
-            if(data){
+        if (localStorage.getItem("task_proxies")) {
+            data = JSON.parse(localStorage.getItem("task_proxies"));
+            data = data.filter(obj => obj.ip !== undefined);
+            global.proxies = data;
+
+
+            if (data) {
                 this.setState({
                     taskProxies: data
                 })
             }
         }
     }
+
+
+
+    testProxy = (index, num) => {
+        if (num == 0) {
+
+            let data = [];
+
+            if (localStorage.getItem("monitor_proxies")) {
+                data = JSON.parse(localStorage.getItem("monitor_proxies"));
+                data = data.filter(obj => obj.ip !== undefined);
+
+                let bot = new ProxyTester(data[index]);
+                bot.on("status", o => {
+                    data[index].speed = o.speed;
+
+                    console.log(data[index]);
+                    localStorage.setItem("monitor_proxies", JSON.stringify(data))
+                    this.setState({
+                        monitorProxies: data
+                    });
+                    console.log("Status:");
+                });
+                bot.init();
+
+
+            }
+
+        } else {
+
+            let data = [];
+
+            if (localStorage.getItem("task_proxies")) {
+                data = JSON.parse(localStorage.getItem("task_proxies"));
+                data = data.filter(obj => obj.ip !== undefined);
+
+                let bot = new ProxyTester(data[index]);
+                bot.on("status", o => {
+                    data[index].speed = o.speed;
+                    localStorage.setItem("task_proxies", JSON.stringify(data))
+                    this.setState({
+                        taskProxies: data
+                    });
+                    console.log("Status:");
+                });
+                bot.init();
+
+
+            }
+        };
+    };
+
+    testAllProxies = (num) => {
+        if (num == 0) {
+
+            let data = [];
+
+            if (localStorage.getItem("monitor_proxies")) {
+                data = JSON.parse(localStorage.getItem("monitor_proxies"));
+                data = data.filter(obj => obj.ip !== undefined);
+
+                data.forEach(async obj => {
+                    let bot = new ProxyTester(obj);
+                    bot.on("status", o => {
+                        obj.speed = o.speed;
+                        localStorage.setItem("monitor_proxies", JSON.stringify(data))
+                        this.setState({
+                            monitorProxies: data
+                        });
+                        console.log("Status:");
+                        console.log(obj);
+                    });
+                    bot.init();
+
+                });
+
+            }
+        } else {
+
+            let data = [];
+
+            if (localStorage.getItem("task_proxies")) {
+                data = JSON.parse(localStorage.getItem("task_proxies"));
+                data = data.filter(obj => obj.ip !== undefined);
+
+                data.forEach(async obj => {
+                    let bot = new ProxyTester(obj);
+                    bot.on("status", o => {
+                        obj.speed = o.speed;
+                        localStorage.setItem("task_proxies", JSON.stringify(data))
+                        this.setState({
+                            taskProxies: data
+                        });
+                        console.log("Status:");
+                        console.log(obj);
+                    });
+                    bot.init();
+
+                });
+
+            }
+        }
+
+    };
 
     importFromFile = () => {
         document.getElementById('fileid').click();
@@ -63,65 +190,78 @@ export default class Proxies extends Component {
         var arr = this.state.proxies.split("\n");
         var arr1 = [];
         var data = [];
+
+        arr = arr.filter(proxy => proxy.split(":").length > 2 && proxy !== undefined && proxy !== "" && proxy !== " ")
+
         for (let i = 0; i < arr.length; i++) {
             arr1[i] = arr[i].split(":");
-            if(!arr1[i]){
-                alert("Invalid type");
-                return;
-            } else {
-                let temp = []
-                for (let i = 0; i < arr1.length; i++) {
-                    temp = arr1[i]
-                    if(!temp[0] || !temp[1]){
-                        alert("Invalid type");
-                        return; 
-                    }
-                    arr1[i] = {
-                        ip: temp[0],
-                        port: temp[1],
-                        username: temp[2],
-                        password: temp[3],
-                        speed: 'Bad'
-                    }
-                    if(this.state.isMonitorProxies)
-                    {
-                        data = this.add("monitor_proxies", arr1[i]);
-                        this.setState({
-                            monitorProxies: data
-                        })
-                    }
-                    else {
-                        data = this.add("task_proxies", arr1[i])
-                        this.setState({
-                            taskProxies: data
-                        })
-                    }
+            let temp = []
+            for (let i = 0; i < arr1.length; i++) {
+                temp = arr1[i]
+
+                arr1[i] = {
+                    ip: temp[0],
+                    port: temp[1],
+                    username: temp[2],
+                    password: temp[3],
+                    speed: 'Idle'
+                }
+                if (this.state.isMonitorProxies) {
+                    data = this.add("monitor_proxies", arr1[i]);
+
+                    console.log(data);
+
+                    data = data.filter(obj => obj.ip !== undefined);
+
+                    global.proxies = data;
+
+                    this.setState({
+                        monitorProxies: data
+                    })
+                } else {
+                    data = this.add("task_proxies", arr1[i]);
+                    data = data.filter(obj => obj.ip !== undefined);
+                    global.proxies = data;
+
+                    console.log(data)
+                    this.setState({
+                        taskProxies: data
+                    })
                 }
             }
         }
-       
+
+
     }
 
     deleteProxy = (index, isWhichProxy) => {
-        if(isWhichProxy == 0) {
+        if (isWhichProxy == 0) {
             let data = []
-            if(localStorage.getItem("monitor_proxies")){
+            if (localStorage.getItem("monitor_proxies")) {
                 data = JSON.parse(localStorage.getItem("monitor_proxies"))
-                if(data){
+                if (data) {
                     data.splice(index, 1)
+                    data = data.filter(obj => obj.ip !== undefined);
+                    global.proxies = data;
+
+
                     localStorage.setItem("monitor_proxies", JSON.stringify(data))
+
+
                     this.setState({
                         monitorProxies: data
                     })
                 }
             }
-        }
-        else {
+        } else {
             let data = []
-            if(localStorage.getItem("task_proxies")){
+            if (localStorage.getItem("task_proxies")) {
                 data = JSON.parse(localStorage.getItem("task_proxies"))
-                if(data){
+                if (data) {
                     data.splice(index, 1)
+                    data = data.filter(obj => obj.ip !== undefined);
+                    global.proxies = data;
+
                     localStorage.setItem("task_proxies", JSON.stringify(data))
                     this.setState({
                         taskProxies: data
@@ -132,30 +272,35 @@ export default class Proxies extends Component {
     }
 
     deleteAllProxies = (isWhichProxy) => {
-        if(isWhichProxy == 0) {
+        if (isWhichProxy == 0) {
             localStorage.setItem("monitor_proxies", JSON.stringify([]))
             this.setState({
                 monitorProxies: null
-            })            
-        }
-        else {
+            })
+        } else {
             localStorage.setItem("task_proxies", JSON.stringify([]))
             this.setState({
                 taskProxies: null
-            })  
+            })
         }
     }
 
     add = (t, obj) => {
         let data = []
-        if(localStorage.getItem(t)){
+        if (localStorage.getItem(t)) {
             data = JSON.parse(localStorage.getItem(t))
-            if(data){
-                obj["id"] = data.length+1
+            if (data) {
+                data = data.filter(obj => obj.ip !== undefined);
+                global.proxies = data;
+
+                obj["id"] = data.length + 1
                 data.push(obj)
                 localStorage.setItem(t, JSON.stringify(data))
             }
-        }else{
+        } else {
+            data = data.filter(obj => obj.ip !== undefined);
+            global.proxies = data;
+
             obj["id"] = 1
             data.push(obj)
             localStorage.setItem(t, JSON.stringify(data))
@@ -198,7 +343,7 @@ export default class Proxies extends Component {
                                         </div>
                                     </div>
                                     <div className="card-body">
-                                        <div className="table-responsive">
+                                        <div className="proxies-table custom-scroll">
                                             <table className="table">
                                                 <thead>
                                                     <tr>
@@ -220,9 +365,10 @@ export default class Proxies extends Component {
                                                                 <td>{monitorProxy.port}</td>
                                                                 <td>{monitorProxy.username}</td>
                                                                 <td>{monitorProxy.password}</td>
-                                                                <td className={monitorProxy.speed == "Bad" ? "text-danger" : "text-success"}>{monitorProxy.speed}</td>
+                                                                <td> {monitorProxy.speed}</td>
+                                                                {/* <td className={monitorProxy.speed == "-" ? "text-danger" : "text-success"}>{monitorProxy.speed}</td> */}
                                                                 <td>
-                                                                    <a href="#" className="btn-action"><i
+                                                                    <a href="#" className="btn-action" onClick={()=>this.testProxy(index, 0)}><i
                                                                         className="fa fa-play-circle-o"></i></a>
                                                                     <a href="#" className="btn-action" onClick={()=>this.deleteProxy(index,0)}><i className="fa fa-trash-o"></i></a>
                                                                 </td>
@@ -238,8 +384,8 @@ export default class Proxies extends Component {
                                             data-target="#exampleModalCenter" onClick={()=>this.setState({isMonitorProxies: true})}><i className="fa fa-plus-circle"></i>
                                             Add Proxies
                                         </a>
+                                        <a href="#" className="btn btn-test"onClick={()=>this.testAllProxies(0)}><i className="fa fa-play"></i> Test</a>
                                         <a href="#" className="btn btn-all" onClick={()=>this.deleteAllProxies(0)}><i className="fa fa-trash-o"></i> Clear All</a>
-                                        <a href="#" className="btn btn-test"><i className="fa fa-play"></i> Test</a>
                                     </div>
                                 </div>
                             </div>
@@ -272,7 +418,7 @@ export default class Proxies extends Component {
                                         </div>
                                     </div>
                                     <div className="card-body">
-                                        <div className="table-responsive">
+                                        <div className="proxies-table custom-scroll">
                                             <table className="table">
                                                 <thead>
                                                     <tr>
@@ -294,9 +440,9 @@ export default class Proxies extends Component {
                                                                     <td>{taskProxy.port}</td>
                                                                     <td>{taskProxy.username}</td>
                                                                     <td>{taskProxy.password}</td>
-                                                                    <td className={taskProxy.speed == "Bad" ? "text-danger" : "text-success"}>{taskProxy.speed}</td>
+                                                                    <td>{taskProxy.speed}</td>
                                                                     <td>
-                                                                        <a href="#" className="btn-action"><i
+                                                                        <a href="#" className="btn-action"onClick={()=>this.testProxy(index, 1)}><i
                                                                             className="fa fa-play-circle-o"></i></a>
                                                                         <a href="#" className="btn-action" onClick={()=>this.deleteProxy(index,1)}><i className="fa fa-trash-o"></i></a>
                                                                     </td>
@@ -312,8 +458,8 @@ export default class Proxies extends Component {
                                             data-target="#exampleModalCenter" onClick={()=>this.setState({isMonitorProxies: false})}><i className="fa fa-plus-circle"></i>
                                             Add Proxies
                                         </a>
+                                        <a href="#" className="btn btn-test" onClick={()=>this.testAllProxies(1)} ><i className="fa fa-play"></i> Test All</a>
                                         <a href="#" className="btn btn-all" onClick={()=>this.deleteAllProxies(1)}><i className="fa fa-trash-o"></i> Clear All</a>
-                                        <a href="#" className="btn btn-test"><i className="fa fa-play"></i> Test</a>
                                     </div>
                                 </div>
                             </div>

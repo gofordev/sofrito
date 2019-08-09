@@ -19,6 +19,7 @@
 body{
     font-family: 'ProximaNova_Regular';
     background: #202438;
+    user-select: none;
 }
 
 /*---------------------- Header -----------------------*/
@@ -38,7 +39,7 @@ body{
     left: 0px;
 }
 
-.header .logoLink {
+#captcha-close, #captcha-minimize{
     -webkit-app-region: no-drag;
 }
 
@@ -206,6 +207,12 @@ tbody .btn-action:hover{
     color: rgb(116, 153, 255);
 }
 
+.center-block {
+    display: block;
+    margin-right: auto;
+    margin-left: auto;
+  }
+
 .btn-add:hover{
     background: rgb(116, 153, 255);
 }
@@ -254,12 +261,11 @@ tbody .btn-action:hover{
 .footer p{
     text-align: right;
     color: #a8aab7;
+    cursor: pointer;
     margin-bottom: 0px;
 }
 .footer p a{
-
     color: #fff;
-
 }
 
 .modal-content {
@@ -350,8 +356,66 @@ tbody .btn-action:hover{
     margin-top: 0px;
     height:700px;
     background: #272d45;
+}
+
+.dashboard-table{
+    height: 460px;
     overflow-y: auto;
     overflow-x: hidden;
+}
+
+.dashboard-table thead th {
+    position: sticky; 
+    top: 0; 
+    display: absolute;
+    background: #202438;
+    z-index: 1;
+}
+
+.dashboard-table tbody {
+    z-index: 10;
+}
+
+.proxies-table{
+    height: 567px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.proxies-table thead th {
+    position: sticky; 
+    top: 0; 
+    display: absolute;
+    background: #202438;
+    z-index: 1;
+}
+
+.proxies-table tbody {
+    z-index: 10;
+}
+
+.saved-profile {
+    height: 567px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.custom-scroll::-webkit-scrollbar-track
+{
+	box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	background-color: #23273e;
+}
+
+.custom-scroll::-webkit-scrollbar
+{
+	width: 12px;
+	background-color: #F5F5F5;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb
+{
+	box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+	background-color: #202438;
 }
 
 .footsite2{
@@ -409,6 +473,27 @@ tbody .btn-action:hover{
     background-color: rgb(0, 0, 0);
     background: #21263a;
     width: 100%;
+    align-items: center;
+}
+
+.edit-form .test-control{
+    border-style: solid;
+    border-width: 1px;
+    border-color: #32CD32;
+    border-radius: 10px;
+    background-color: rgb(0, 0, 0);
+    background: #21263a;
+    width: 100%;
+    align-items: center;
+}
+
+
+
+.edit-form .test-control:focus{
+    border-color: #32CD32;
+}
+.edit-form .form-control:focus{
+    border-color: #7f8fa4;
 }
 .window-btns{
     text-align: center;
@@ -471,7 +556,32 @@ tbody .btn-action:hover{
     border: none;
 }
 
+.has-search .test-control {
+    padding-left: 2.375rem;
+    background-color: rgb(33, 35, 61);
+    border-radius: 20px;
+    -webkit-border-radius: 20px;
+    -moz-border-radius: 20px;
+    -ms-border-radius: 20px;
+    width: 250px;
+    height: 30px;
+    border: none;
+}
+
+
 .has-search .form-control-feedback {
+    position: absolute;
+    z-index: 2;
+    display: block;
+    width: 2.375rem;
+    height: 2.375rem;
+    line-height: 2rem;
+    text-align: center;
+    pointer-events: none;
+    color: #aaa;
+}
+
+.has-search .test-control-feedback {
     position: absolute;
     z-index: 2;
     display: block;
@@ -508,10 +618,13 @@ tbody .btn-action:hover{
     content: "\f078";
 }
 .steps{
-    padding-top: 30px;
     text-align: center;
-    padding-bottom: 15px;
     background: #23273e;
+}
+
+.steps .row {
+    padding-top: 30px;
+    padding-bottom: 15px;
 }
 
 .steps .step-number{
@@ -532,7 +645,6 @@ tbody .btn-action:hover{
 
 .table .company-name{
     font-family: 'ProximaNova_Semibold';
-    position: absolute;
     margin-top: -50px;
     margin-left: 60px;
     text-align: left;
@@ -584,6 +696,10 @@ tbody .btn-action:hover{
     background: #23273d;
 }
 
+#exampleModalCenter2 .modal-header {
+    -webkit-app-region: drag;
+}
+
 .modal2 .modal-body {
     text-align: left;
 }
@@ -612,6 +728,32 @@ tbody .btn-action:hover{
     -ms-border-radius: 20px;
     box-shadow: 0.5px 0.866px 1px 0px rgba(0, 0, 0, 0.024);
 }
+
+.modal2 .test-control{
+    background-color: rgb(41, 47, 72);
+    border-style: solid;
+    border-width: 2px;
+    border-color: rgb(141, 161, 185);
+    color: #32CD32;
+ 
+    border-radius: 20px;
+    -webkit-border-radius: 20px;
+    -moz-border-radius: 20px;
+    -ms-border-radius: 20px;
+    box-shadow: 0.5px 0.866px 1px 0px rgba(0, 0, 0, 0.024);
+}
+
+.modal2 .form-control{
+    background-color: rgb(41, 47, 72);
+    border-style: solid;
+    border-width: 1px;
+    border-color: rgb(141, 161, 185);
+    color: #7f8fa4;
+    
+    border-radius: 20px;
+    box-shadow: 0.5px 0.866px 1px 0px rgba(0, 0, 0, 0.024);
+}
+
 .modal2 .form-control{
     background-color: rgb(41, 47, 72);
     border-style: solid;
@@ -633,6 +775,11 @@ tbody .btn-action:hover{
     width: 100%;
     height: auto;
 }
+.modal2 .has-search .test-control{
+    width: 100%;
+    height: auto;
+}
+
 .has-search2 .form-control {
     background-color: rgb(41, 47, 72);
     border-style: solid;
@@ -641,7 +788,27 @@ tbody .btn-action:hover{
     border-radius: 20px;
 }
 
+
+.has-search2 .test-control {
+    background-color: rgb(41, 47, 72);
+    border-style: solid;
+    border-width: 1px;
+    border-color: rgb(141, 161, 185);
+    border-radius: 20px;
+}
 .has-search2 .form-control-feedback2 {
+    position: absolute;
+    z-index: 2;
+    display: block;
+    width: 2.375rem;
+    height: 2.375rem;
+    line-height: 2rem;
+    text-align: center;
+    pointer-events: none;
+    color: #aaa;
+    right: 0px;
+}
+.has-search2 .test-control-feedback2 {
     position: absolute;
     z-index: 2;
     display: block;
@@ -823,16 +990,27 @@ input[type=number]::-webkit-outer-spin-button {
     background:rgb(242, 25, 55);
     color: #fff;
 }
+
+.success.card{
+    border: none;
+    margin-top:40px;
+    background: #23273e;
+    min-height: 700px;
+}
+
 .success-table {
     margin-top: 50px;
-    background: #24283f;
-    height: 700px;
+    height: 654px;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
-.table-recover thead{
-    background: #292f48;
-}
-.table-recover tbody{
 
+.success-table thead th {
+    position: sticky; 
+    top: 0; 
+    display: absolute;
+    background: #202438;
+    z-index: 1;
 }
 
 .table-recover .company-name {
@@ -865,7 +1043,6 @@ input[type=number]::-webkit-outer-spin-button {
     text-align: center;
     padding-top: 6px;
     margin-left: -3px;
-    z-index: 99999999;
     position: relative;
 }
 .progress-steps span{
@@ -874,7 +1051,7 @@ input[type=number]::-webkit-outer-spin-button {
     background: #313e52;
     margin-top: 12px;
     margin-left: -2px;
-    z-index: 1;
+    z-index: 0;
 }
 
 

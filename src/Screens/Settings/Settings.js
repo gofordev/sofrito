@@ -1,11 +1,15 @@
-import React, { Component } from 'react';
+import React, {
+    Component
+} from 'react';
 import isElectron from 'is-electron';
+const Discord = require('../../modules/discord/index');
+//const { shell } = window.require('electron').shell; 
 
 export default class Settings extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            monitorDelay: '',
+            monitorDelay: global.delay,
             errorDelay: '',
             apiKey: '',
             antiApiKey: '',
@@ -15,30 +19,67 @@ export default class Settings extends Component {
             sound: false,
             size: 'null',
             profile: 'null',
-            quantityOfTask: '', 
+            quantityOfTask: '',
             profiles: []
         }
     }
 
     componentDidMount() {
-        if(isElectron()){
-            window.storage.get('profiles', function(error, data) {
-                if (error) throw error;
-                if(JSON.parse(data.profiles) != null){
-                    localStorage.setItem("profiles", data.profiles)
-                }
-            });
-        } 
 
-        var data = []
-        if(localStorage.getItem("profiles")){
-            data = JSON.parse(localStorage.getItem("profiles"))
-            if(data){
-                this.setState({
-                    profiles: data
-                })
+        try {
+
+            if (isElectron()) {
+                window.storage.get('profiles', function (error, data) {
+                    if (error) throw error;
+                    if (JSON.stringify(data.profiles) != null) {
+                        localStorage.setItem("profiles", data.profiles)
+                    }
+                });
+                window.storage.get('settings', function (error, data) {
+                    if (error) throw error;
+                    if (JSON.stringify(data.settings) != null) {
+                        localStorage.setItem("settings", data.settings)
+                    }
+                });
             }
+        } catch (e) {
+
+        };
+
+
+        try {
+
+            var data = []
+            if (localStorage.getItem("profiles")) {
+                data = JSON.parse(localStorage.getItem("profiles"))
+                if (data) {
+                    this.setState({
+                        profiles: data
+                    })
+                }
+            }
+            if (localStorage.getItem("settings")) {
+                data = JSON.parse(localStorage.getItem("settings"))
+                if (data) {
+                    this.setState({
+                        monitorDelay: global.delay,
+                        errorDelay: data[0].error_dealy,
+                        apiKey: data[0].captcha.apiKey,
+                        antiApiKey: data[0].captcha.antiApiKey,
+                        webhookURL: data[0].webhooks,
+                        captcha: data[0].notification.captcha,
+                        desktop: data[0].notification.desktop,
+                        sound: data[0].notification.sound,
+                        size: data[0].quick_task.size,
+                        profile: data[0].quick_task.profile,
+                        quantityOfTask: data[0].quick_task.quantity_of_task,
+                    })
+                }
+            }
+        } catch (e) {
+            console.log(e);
         }
+
     }
 
     handleChangeMonitorDelay = (event) => {
@@ -68,13 +109,13 @@ export default class Settings extends Component {
     handleChangeWebhookURL = (event) => {
         this.setState({
             webhookURL: event.target.value
-        })        
+        })
     }
 
     handleChangeQuantityOfTask = (event) => {
         this.setState({
             quantityOfTask: event.target.value
-        })        
+        })
     }
 
     handleChangeCaptcha = () => {
@@ -108,7 +149,11 @@ export default class Settings extends Component {
     }
 
     saveSettings = () => {
-        let obj = {notification: {}, captcha: {}, quick_task: {}};
+        let obj = {
+            notification: {},
+            captcha: {},
+            quick_task: {}
+        };
         obj["monitor_delay"] = this.state.monitorDelay;
         obj["error_dealy"] = this.state.errorDelay;
         obj["notification"]["captcha"] = this.state.captcha;
@@ -126,24 +171,33 @@ export default class Settings extends Component {
         alert("Settings are saved successfully")
     }
 
+
+    openSupport = () => {
+        window.require('electron').shell.openExternal("https://twitter.com/blasmoji");
+    };
+
+    sendWebhook = () => {
+        new Discord({
+            url: this.state.webhookURL,
+        }).sendWebhook();
+    };
+
     addSettings(t, obj) {
         let data = []
-        if(localStorage.getItem(t)){
+        if (localStorage.getItem(t)) {
             data = JSON.parse(localStorage.getItem(t))
-            if(data){
-                let index = data.findIndex((obj1=>obj1.profileName==obj.profileName))
-                console.log("Index : "+index)
-                if(index>=0){
-                    data[index] = Object.assign(data[index], obj);
+            if (data) {
+                let index = data.findIndex((obj1 => obj1.profileName == obj.profileName))
+                console.log("Index : " + index)
+                if (index >= 0) {
+                    data[0] = Object.assign(data[0], obj);
                     localStorage.setItem(t, JSON.stringify(data))
                     return data
                 }
-                obj["id"] = data.length+1
                 data.push(obj)
                 localStorage.setItem(t, JSON.stringify(data))
             }
-        }else{
-            obj["id"] = 1
+        } else {
             data.push(obj)
             localStorage.setItem(t, JSON.stringify(data))
         }
@@ -172,7 +226,7 @@ export default class Settings extends Component {
                                     </div>
                                 </div>
                                 <div className="card-body">
-                                    <div className="setting-information" style={{marginTop: "50px"}}>
+                                    <div className="setting-information" style={{marginTop: "30px"}}>
                                         <div className="container">
                                             <form>
                                                 <div className="row">
@@ -251,6 +305,7 @@ export default class Settings extends Component {
                                                                             <input id="cmn-toggle-4" 
                                                                                 className="cmn-toggle cmn-toggle-round-flat" 
                                                                                 type="checkbox"
+                                                                                checked={this.state.captcha}
                                                                                 onChange={this.handleChangeCaptcha}
                                                                             />
                                                                             <label htmlFor="cmn-toggle-4"></label>
@@ -268,6 +323,7 @@ export default class Settings extends Component {
                                                                             <input id="cmn-toggle-5" 
                                                                                 className="cmn-toggle cmn-toggle-round-flat" 
                                                                                 type="checkbox"
+                                                                                checked={this.state.desktop}
                                                                                 onChange={this.handleChangeDesktop}
                                                                             /> 
                                                                             <label htmlFor="cmn-toggle-5"></label>
@@ -285,6 +341,7 @@ export default class Settings extends Component {
                                                                             <input id="cmn-toggle-6" 
                                                                                 className="cmn-toggle cmn-toggle-round-flat" 
                                                                                 type="checkbox"
+                                                                                checked={this.state.sound}
                                                                                 onChange={this.handleChangeSound}
                                                                             />
                                                                             <label htmlFor="cmn-toggle-6"></label>
@@ -299,7 +356,7 @@ export default class Settings extends Component {
                                                         <div className="heading">
                                                             Help
                                                         </div>
-                                                        <a href="#" className="btn btn-support">Contact Support</a>
+                                                        <a href="#" className="btn btn-support" onClick={()=>this.openSupport()}>Contact Support</a>
                                                     </div>
                                                 </div>
                                                 <div className="row">
@@ -313,17 +370,16 @@ export default class Settings extends Component {
                                                                     <div className="input-group date has-search2">
                                                                         <input type='text' 
                                                                             className="form-control form-control-sm" 
-                                                                            placeholder="Discover Webhook URL"
+                                                                            placeholder="Discord Webhook URL"
                                                                             value={this.state.webhookURL}
                                                                             onChange={this.handleChangeWebhookURL}
                                                                         />
-                                                                        <span className="fab fa-discord form-control-feedback2"></span>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                             <div className="col-3">
                                                                 <div className="form-group">
-                                                                    <a href="#" className="btn btn-test">Test</a>
+                                                                    <a href="#" className="btn btn-test" onClick={()=>this.sendWebhook()} >Test</a>
                                                                 </div>
                                                             </div>
 
