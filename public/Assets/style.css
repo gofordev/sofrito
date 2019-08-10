@@ -993,13 +993,18 @@ input[type=number]::-webkit-outer-spin-button {
 
 .success.card{
     border: none;
-    margin-top:40px;
-    background: #23273e;
+    background: #202438;
     min-height: 700px;
 }
 
+.success.card .card-body{
+    padding-left: 2.25rem;
+    padding-right: 2.25rem;
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
 .success-table {
-    margin-top: 50px;
+    background: #23273e;
     height: 654px;
     overflow-y: auto;
     overflow-x: hidden;
@@ -1009,7 +1014,7 @@ input[type=number]::-webkit-outer-spin-button {
     position: sticky; 
     top: 0; 
     display: absolute;
-    background: #202438;
+    background: linear-gradient(#282d46, #2b304a);
     z-index: 1;
 }
 

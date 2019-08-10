@@ -48,11 +48,9 @@ export default class Proxies extends Component {
         let data = []
         if (localStorage.getItem("monitor_proxies")) {
             data = JSON.parse(localStorage.getItem("monitor_proxies"));
-            data = data.filter(obj => obj.ip !== undefined);
-
-            global.proxies = data;
-
             if (data) {
+                data = data.filter(obj => obj.ip !== undefined);
+                global.proxies = data;
                 this.setState({
                     monitorProxies: data
                 })
@@ -60,11 +58,9 @@ export default class Proxies extends Component {
         }
         if (localStorage.getItem("task_proxies")) {
             data = JSON.parse(localStorage.getItem("task_proxies"));
-            data = data.filter(obj => obj.ip !== undefined);
-            global.proxies = data;
-
-
             if (data) {
+                data = data.filter(obj => obj.ip !== undefined);
+                global.proxies = data;
                 this.setState({
                     taskProxies: data
                 })
@@ -81,22 +77,22 @@ export default class Proxies extends Component {
 
             if (localStorage.getItem("monitor_proxies")) {
                 data = JSON.parse(localStorage.getItem("monitor_proxies"));
-                data = data.filter(obj => obj.ip !== undefined);
+                if (data) {
+                    data = data.filter(obj => obj.ip !== undefined);
 
-                let bot = new ProxyTester(data[index]);
-                bot.on("status", o => {
-                    data[index].speed = o.speed;
-
-                    console.log(data[index]);
-                    localStorage.setItem("monitor_proxies", JSON.stringify(data))
-                    this.setState({
-                        monitorProxies: data
+                    let bot = new ProxyTester(data[index]);
+                    bot.on("status", o => {
+                        data[index].speed = o.speed;
+    
+                        console.log(data[index]);
+                        localStorage.setItem("monitor_proxies", JSON.stringify(data))
+                        this.setState({
+                            monitorProxies: data
+                        });
+                        console.log("Status:");
                     });
-                    console.log("Status:");
-                });
-                bot.init();
-
-
+                    bot.init(); 
+                }
             }
 
         } else {
@@ -105,20 +101,20 @@ export default class Proxies extends Component {
 
             if (localStorage.getItem("task_proxies")) {
                 data = JSON.parse(localStorage.getItem("task_proxies"));
-                data = data.filter(obj => obj.ip !== undefined);
+                if(data) {
+                    data = data.filter(obj => obj.ip !== undefined);
 
-                let bot = new ProxyTester(data[index]);
-                bot.on("status", o => {
-                    data[index].speed = o.speed;
-                    localStorage.setItem("task_proxies", JSON.stringify(data))
-                    this.setState({
-                        taskProxies: data
+                    let bot = new ProxyTester(data[index]);
+                    bot.on("status", o => {
+                        data[index].speed = o.speed;
+                        localStorage.setItem("task_proxies", JSON.stringify(data))
+                        this.setState({
+                            taskProxies: data
+                        });
+                        console.log("Status:");
                     });
-                    console.log("Status:");
-                });
-                bot.init();
-
-
+                    bot.init();
+                }
             }
         };
     };
@@ -130,23 +126,23 @@ export default class Proxies extends Component {
 
             if (localStorage.getItem("monitor_proxies")) {
                 data = JSON.parse(localStorage.getItem("monitor_proxies"));
-                data = data.filter(obj => obj.ip !== undefined);
-
-                data.forEach(async obj => {
-                    let bot = new ProxyTester(obj);
-                    bot.on("status", o => {
-                        obj.speed = o.speed;
-                        localStorage.setItem("monitor_proxies", JSON.stringify(data))
-                        this.setState({
-                            monitorProxies: data
+                if(data) {
+                    data = data.filter(obj => obj.ip !== undefined);
+                    data.forEach(async obj => {
+                        let bot = new ProxyTester(obj);
+                        bot.on("status", o => {
+                            obj.speed = o.speed;
+                            localStorage.setItem("monitor_proxies", JSON.stringify(data))
+                            this.setState({
+                                monitorProxies: data
+                            });
+                            console.log("Status:");
+                            console.log(obj);
                         });
-                        console.log("Status:");
-                        console.log(obj);
+                        bot.init();
+    
                     });
-                    bot.init();
-
-                });
-
+                }
             }
         } else {
 
@@ -154,23 +150,24 @@ export default class Proxies extends Component {
 
             if (localStorage.getItem("task_proxies")) {
                 data = JSON.parse(localStorage.getItem("task_proxies"));
-                data = data.filter(obj => obj.ip !== undefined);
-
-                data.forEach(async obj => {
-                    let bot = new ProxyTester(obj);
-                    bot.on("status", o => {
-                        obj.speed = o.speed;
-                        localStorage.setItem("task_proxies", JSON.stringify(data))
-                        this.setState({
-                            taskProxies: data
+                if(data)
+                {
+                    data = data.filter(obj => obj.ip !== undefined);
+                    data.forEach(async obj => {
+                        let bot = new ProxyTester(obj);
+                        bot.on("status", o => {
+                            obj.speed = o.speed;
+                            localStorage.setItem("task_proxies", JSON.stringify(data))
+                            this.setState({
+                                taskProxies: data
+                            });
+                            console.log("Status:");
+                            console.log(obj);
                         });
-                        console.log("Status:");
-                        console.log(obj);
+                        bot.init();
+    
                     });
-                    bot.init();
-
-                });
-
+                }
             }
         }
 

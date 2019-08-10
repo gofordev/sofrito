@@ -4,6 +4,7 @@ import React, {
 
 
 export default class Success extends Component {
+    _isMounted = false;
     constructor(props) {
         super(props)
 
@@ -14,11 +15,19 @@ export default class Success extends Component {
     }
 
     componentDidMount() {
-        setInterval(() => {
-            this.setState({
-                successObj: global.success,
-            });
-        }, 1000);
+        this._isMounted = true;
+        if(this._isMounted)
+        {
+            setInterval(() => {
+                this.setState({
+                    successObj: global.success,
+                });
+            }, 1000);
+        }
+    }
+
+    componentWillUnmount() {
+        this._isMounted = false;
     }
 
     statusRender = (status) => {
@@ -140,49 +149,51 @@ export default class Success extends Component {
         return(
             <div className="success">
                 <div className="tab-pane fade show active" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                    <div className="success card">
-                        <div className="card-body">
-                            <div className="proxies success-table custom-scroll">
-                                <table className="table table-recover">
-                                    <thead>
-                                        <tr>
-                                            <th>Site</th>
-                                            <th>Image</th>
-                                            <th>Product</th>
-                                            <th>Progress</th>
-                                            <th>Info</th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {this.state.successObj ? this.state.successObj.map((successObj, index) => {
-                                            return (
-                                                <tr key={index}>
-                                                    <td>
-                                                        <div className="company-name">Adidas<br />
-                                                            <span className="location">US Region</span>
-                                                        </div>
-                                                    </td>
-                                                    <td>
-                                                        <img src={successObj.image} alt=""/>
-                                                    </td>
-                                                    <td>{successObj.product}</td>
-                                                    <td>
-                                                        {this.statusRender(successObj.status)}
-                                                    </td>
-                                                    <td>
-                                                        Price - {successObj.info.price}<br />
-                                                        Profile - {successObj.info.profile}<br />
-                                                        Size - {successObj.info.size}
-                                                    </td>
-                                                    <td>
-                                                        <a href="#" className="btn-action" onClick={()=>this.deleteProgress(index)}><i className="fa fa-trash-o"></i></a>
-                                                    </td>
-                                                </tr>
-                                            )
-                                        }) : <tr></tr>}
-                                    </tbody>
-                                </table>
+                    <div className="main">
+                        <div className="success card">
+                            <div className="card-body">
+                                <div className="proxies success-table custom-scroll">
+                                    <table className="table table-recover">
+                                        <thead>
+                                            <tr>
+                                                <th>Site</th>
+                                                <th>Image</th>
+                                                <th>Product</th>
+                                                <th>Progress</th>
+                                                <th>Info</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {this.state.successObj ? this.state.successObj.map((successObj, index) => {
+                                                return (
+                                                    <tr key={index}>
+                                                        <td>
+                                                            <div className="company-name">Adidas<br />
+                                                                <span className="location">US Region</span>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <img src={successObj.image} alt=""/>
+                                                        </td>
+                                                        <td>{successObj.product}</td>
+                                                        <td>
+                                                            {this.statusRender(successObj.status)}
+                                                        </td>
+                                                        <td>
+                                                            Price - {successObj.info.price}<br />
+                                                            Profile - {successObj.info.profile}<br />
+                                                            Size - {successObj.info.size}
+                                                        </td>
+                                                        <td>
+                                                            <a href="#" className="btn-action" onClick={()=>this.deleteProgress(index)}><i className="fa fa-trash-o"></i></a>
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            }) : <tr></tr>}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
